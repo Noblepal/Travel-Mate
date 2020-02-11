@@ -26,10 +26,30 @@
 
     </com.google.android.material.card.MaterialCardView>
 
-    <CalendarView
+
+    <com.archit.calendardaterangepicker.customviews.DateRangeCalendarView
+        android:id="@+id/calendar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/mcv_title_select_date" />
+        app:layout_constraintTop_toBottomOf="@id/mcv_title_select_date">
+    </com.archit.calendardaterangepicker.customviews.DateRangeCalendarView>
+<!--    <com.archit.calendardaterangepicker.customviews.DateRangeCalendarView-->
+<!--        android:id="@+id/calendar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        custom:disable_date_color="#ABABAB"-->
+<!--        custom:header_bg="@drawable/calendar_header"-->
+<!--        custom:range_color="@color/range_color"-->
+<!--        custom:selected_date_circle_color="@color/selected_date_circle_color"-->
+<!--        custom:title_color="@color/calendar_header_title"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/mcv_title_select_date">-->
+<!--    </com.archit.calendardaterangepicker.customviews.DateRangeCalendarView>-->
+<!--    <CalendarView-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="16dp"-->
+<!--        app:layout_constraintTop_toBottomOf="@id/mcv_title_select_date" />-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

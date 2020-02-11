@@ -28,16 +28,25 @@
             android:orientation="vertical"
             android:layout_height="wrap_content">
 
-            <EditText
-                android:id="@+id/searchTxt"
-                android:textSize="22dp"
-                android:layout_margin="16dp"
-                android:drawableLeft="@drawable/ic_search"
-                android:drawablePadding="8dp"
-                android:drawableTint="@color/black"
+            <fragment android:id="@+id/autocomplete_fragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Birmingha"/>
+                android:layout_margin="16dp"
+                android:drawableStart="@drawable/ic_search"
+                android:drawablePadding="8dp"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+                />
+
+<!--            <EditText-->
+<!--                android:id="@+id/searchTxt"-->
+<!--                android:textSize="22dp"-->
+<!--                android:layout_margin="16dp"-->
+<!--                android:drawableLeft="@drawable/ic_search"-->
+<!--                android:drawablePadding="8dp"-->
+<!--                android:drawableTint="@color/black"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="Birmingha"/>-->
             <TextView
                 android:id="@+id/currentLocTxt"
                 android:textSize="22dp"

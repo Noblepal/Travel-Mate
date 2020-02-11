@@ -39,10 +39,12 @@
 
             <TextView
                 android:id="@+id/tv_holiday_date"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
-                android:text="23/10/2019 - 26/10/2019"
+                android:layout_marginRight="80dp"
+                android:layout_marginLeft="80dp"
+                android:text="23/10/2sdff2343423423423423324019 - 26/10/2019"
                 android:textSize="17sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

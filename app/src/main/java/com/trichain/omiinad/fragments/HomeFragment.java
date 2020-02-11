@@ -1,5 +1,6 @@
 package com.trichain.omiinad.fragments;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,28 +16,54 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.trichain.omiinad.Entities.HolidayTable;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.RoomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.HolidayAdapter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class HomeFragment extends Fragment {
 
-
+    View root;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_home, container, false);
+        root = inflater.inflate(R.layout.fragment_home, container, false);
         Toast.makeText(getActivity(), "I am open", Toast.LENGTH_LONG).show();
-        RecyclerView  recyclerView= root.findViewById(R.id.mainrecyclerview);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        ArrayList<String> aa= new ArrayList<>();
-        aa.add("data 1");
-        aa.add("data 11");
-        aa.add("data 111");
-        aa.add("data 1111");
-        HolidayAdapter holidayAdapter=new HolidayAdapter(aa, getActivity());
-        recyclerView.setAdapter(holidayAdapter);
+        getHolidays();
         return root;
+    }
+    private void getHolidays() {
+        class GetHolidays extends AsyncTask<Void, Void, List<HolidayTable>> {
+
+            @Override
+            protected List<HolidayTable> doInBackground(Void... voids) {
+                List<HolidayTable> holidayTables = DatabaseClient
+                        .getInstance(getActivity())
+                        .getAppDatabase()
+                        .holidayDao()
+                        .getAllHolidays();
+                return holidayTables;
+            }
+
+            @Override
+            protected void onPostExecute(List<HolidayTable> holidays) {
+                super.onPostExecute(holidays);
+
+//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
+//                recyclerView.setAdapter(adapter);
+
+
+                RecyclerView  recyclerView= root.findViewById(R.id.mainrecyclerview);
+                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                HolidayAdapter holidayAdapter=new HolidayAdapter(holidays, getActivity());
+                recyclerView.setAdapter(holidayAdapter);
+            }
+        }
+
+        GetHolidays gh = new GetHolidays();
+        gh.execute();
     }
 
 }

@@ -1,5 +1,6 @@
 package com.trichain.omiinad;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 public class HolidayDetailActivity extends AppCompatActivity {
 
     private Menu menu;
+    int holidayid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,6 +29,7 @@ public class HolidayDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_holiday_detail);
         Toolbar toolbar = findViewById(R.id.toolbarDetails);
         setSupportActionBar(toolbar);
+        holidayid=getIntent().getIntExtra("holiday",0);
 
         RecyclerView recyclerView = findViewById(R.id.eventsrec);
         recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
