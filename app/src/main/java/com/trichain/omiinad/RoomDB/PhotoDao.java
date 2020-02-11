@@ -18,6 +18,12 @@ public interface PhotoDao {
     @Query("SELECT COUNT(id) FROM PhotoTable WHERE holidayID = :holiday")
     int getNumberofHolidayphotos(int holiday);
 
+    @Query("SELECT COUNT(id) FROM PhotoTable WHERE placeID = :event")
+    int getNumberofEventphotos(int event);
+
+    @Query("SELECT  photoName FROM PhotoTable WHERE placeID = :event LIMIT 1")
+    String getLatestEventphotos(int event);
+
     @Insert
     void insert(PhotoTable photoTable);
 

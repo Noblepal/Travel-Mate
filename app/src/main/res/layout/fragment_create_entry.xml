@@ -2,6 +2,8 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:background="@color/white"
+    android:clickable="true"
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
@@ -35,6 +37,15 @@
                 android:layout_margin="4dp"
                 android:background="@color/transparent"
                 android:src="@android:drawable/ic_menu_gallery" />
+            <TextView
+                android:id="@+id/img_add_photo_no"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:text="0"
+                android:layout_margin="4dp"
+                android:layout_marginTop="0dp"
+                android:background="@color/transparent" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -148,6 +159,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/til_entry_text" />
 
+    <NumberPicker
+        android:id="@+id/dialog_number_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <TextView
         android:id="@+id/tv_location_name"
         android:layout_width="0dp"
@@ -159,6 +179,7 @@
         app:layout_constraintTop_toBottomOf="@id/img_add_members" />
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/materialCardView"
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:layout_margin="8dp"
@@ -184,6 +205,7 @@
                 android:tint="@color/white" />
 
             <com.google.android.gms.maps.MapView
+                android:id="@+id/mapView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
 

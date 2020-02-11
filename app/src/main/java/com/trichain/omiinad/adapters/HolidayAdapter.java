@@ -98,7 +98,7 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
         }*/
         return formattedString;
     }
-    public Voice photoCount(final int a, final Context context, final TextView view){
+    public void photoCount(final int a, final Context context, final TextView view){
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -131,6 +131,5 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
 
         SaveTask st = new SaveTask();
         st.execute();
-        return null;
     }
 }

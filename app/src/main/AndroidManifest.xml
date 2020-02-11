@@ -13,6 +13,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyDdig6ikr7xv7N3IE0v4rmvNiQpdNJwlc0"/>
         <activity
             android:name=".HolidayDetailActivity"
             android:label="@string/title_activity_holiday_detail"

@@ -19,6 +19,9 @@ public class VisitedPlaceTable implements Serializable {
     @ColumnInfo(name = "name")
     private String name;
 
+    @ColumnInfo(name = "text")
+    private String text;
+
     @ColumnInfo(name = "visitDate")
     private String visitDate;
 
@@ -54,6 +57,14 @@ public class VisitedPlaceTable implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 
     public void setName(String name) {

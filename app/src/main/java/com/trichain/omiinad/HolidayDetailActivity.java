@@ -1,27 +1,43 @@
 package com.trichain.omiinad;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.trichain.omiinad.Entities.HolidayTable;
+import com.trichain.omiinad.Entities.VisitedPlaceTable;
+import com.trichain.omiinad.RoomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.EventAdapter;
+import com.trichain.omiinad.adapters.HolidayAdapter;
+import com.trichain.omiinad.fragments.CreateEntryFragment;
+import com.trichain.omiinad.fragments.HomeFragment;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class HolidayDetailActivity extends AppCompatActivity {
 
     private Menu menu;
     int holidayid;
+    private static String TAG = "HolidayDetailActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,23 +45,37 @@ public class HolidayDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_holiday_detail);
         Toolbar toolbar = findViewById(R.id.toolbarDetails);
         setSupportActionBar(toolbar);
-        holidayid=getIntent().getIntExtra("holiday",0);
+        holidayid = getIntent().getIntExtra("holiday", 0);
+        Log.e(TAG, "onCreate: " + holidayid);
 
-        RecyclerView recyclerView = findViewById(R.id.eventsrec);
-        recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
-        ArrayList<String> aa = new ArrayList<>();
-        aa.add("data 1");
-        aa.add("data 11");
-        aa.add("data 111");
-        aa.add("data 1111");
-        EventAdapter holidayAdapter = new EventAdapter(aa, HolidayDetailActivity.this);
-        recyclerView.setAdapter(holidayAdapter);
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        getPlaces(holidayid);
+//        RecyclerView recyclerView = findViewById(R.id.eventsrec);
+//        recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
+//        List<VisitedPlaceTable> aa = new List<VisitedPlaceTable>(List);
+//        aa.add("data 1");
+//        aa.add("data 11");
+//        aa.add("data 111");
+//        aa.add("data 1111");
+//        EventAdapter holidayAdapter = new EventAdapter(aa, HolidayDetailActivity.this);
+//        recyclerView.setAdapter(holidayAdapter);
+        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Add Visited Place?", Snackbar.LENGTH_LONG)
+                        .setAction("Yes", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Bundle bundle = new Bundle();
+                                bundle.putInt("holiday",holidayid);
+                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                                CreateEntryFragment createEntryFragment = new CreateEntryFragment();
+                                createEntryFragment.setArguments(bundle);
+                                ft.replace(R.id.add_place_fragment, createEntryFragment);
+                                ft.commit();
+                                fab.setVisibility(View.GONE);
+                            }
+                        }).show();
             }
         });
 
@@ -69,6 +99,38 @@ public class HolidayDetailActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void getPlaces(final int holidayid) {
+        class GetHolidays extends AsyncTask<Void, Void, List<VisitedPlaceTable>> {
+
+            @Override
+            protected List<VisitedPlaceTable> doInBackground(Void... voids) {
+                List<VisitedPlaceTable> visitedPlaceTables = DatabaseClient
+                        .getInstance(HolidayDetailActivity.this)
+                        .getAppDatabase()
+                        .visitedPlaceDao()
+                        .getAllVisitedplace(holidayid);
+                return visitedPlaceTables;
+            }
+
+            @Override
+            protected void onPostExecute(List<VisitedPlaceTable> visitedPlaceTables) {
+                super.onPostExecute(visitedPlaceTables);
+
+//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
+//                recyclerView.setAdapter(adapter);
+
+
+                RecyclerView recyclerView = findViewById(R.id.eventsrec);
+                recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
+                EventAdapter eventAdapter = new EventAdapter(visitedPlaceTables, HolidayDetailActivity.this);
+                recyclerView.setAdapter(eventAdapter);
+            }
+        }
+
+        GetHolidays gh = new GetHolidays();
+        gh.execute();
     }
 
     private void hideOption(int id) {

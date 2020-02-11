@@ -8,7 +8,7 @@ import com.trichain.omiinad.Entities.PeopleTable;
 import com.trichain.omiinad.Entities.PhotoTable;
 import com.trichain.omiinad.Entities.VisitedPlaceTable;
 
-@Database(entities = {HolidayTable.class, PeopleTable.class, PhotoTable.class, VisitedPlaceTable.class}, version = 2)
+@Database(entities = {HolidayTable.class, PeopleTable.class, PhotoTable.class, VisitedPlaceTable.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {
     public abstract HolidayDao holidayDao();
 

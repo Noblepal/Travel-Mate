@@ -12,8 +12,9 @@ import java.util.List;
 
 @Dao
 public interface VisitedPlaceDao {
-    @Query("SELECT * FROM VisitedPlaceTable")
-    List<VisitedPlaceTable> getAllVisitedplace();
+
+    @Query("SELECT * FROM VisitedPlaceTable WHERE holidayID= :holidayID")
+    List<VisitedPlaceTable> getAllVisitedplace(int holidayID);
 
     @Insert
     void insert(VisitedPlaceTable visitedPlaceTable);

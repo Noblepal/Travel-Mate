@@ -1,7 +1,10 @@
 package com.trichain.omiinad.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
+import android.speech.tts.Voice;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,18 +14,22 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.trichain.omiinad.Entities.VisitedPlaceTable;
 import com.trichain.omiinad.HolidayDetailActivity;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.RoomDB.DatabaseClient;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EventAdapter extends RecyclerView.Adapter<EventAdapter.HolidayViewHolder> {
 
-    ArrayList<String> holidayArrayList;
+    List<VisitedPlaceTable> visitedPlaceTableList;
     Context context;
 
-    public EventAdapter(ArrayList<String> holidayArrayList, Context context) {
-        this.holidayArrayList = holidayArrayList;
+    public EventAdapter(List<VisitedPlaceTable> visitedPlaceTableList, Context context) {
+        this.visitedPlaceTableList = visitedPlaceTableList;
         this.context = context;
     }
 
@@ -35,7 +42,15 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.HolidayViewH
 
     @Override
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
-//        holder.tvName.setText("Japan");
+        final VisitedPlaceTable h= visitedPlaceTableList.get(position);
+        holder.tvName.setText(h.getName());
+        holder.id_date.setText(h.getVisitDate());
+        holder.id_day_m_year.setText(h.getVisitDate());
+//        holder.id_people.setText(getPeople(position));
+        getPeople(h.getId(),context,holder.id_people);
+        getPhotos(h.getId(),context,holder.id_photos);
+        getOnePhotos(h.getId(),context,holder.imageView);
+//        holder.id_photos.setText(getPhotos(position,context,holder.id_photos));
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -46,17 +61,128 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.HolidayViewH
 
     @Override
     public int getItemCount() {
-        return holidayArrayList.size();
+        return visitedPlaceTableList.size();
     }
 
     class HolidayViewHolder extends RecyclerView.ViewHolder{
-        TextView tvName;
+        TextView tvName,id_date,id_day_m_year,id_people,id_photos;
         ImageView imageView;
         public HolidayViewHolder(@NonNull View itemView) {
             super(itemView);
-
             tvName = itemView.findViewById(R.id.id_textSite);
             imageView=itemView.findViewById(R.id.imageNews);
+            id_photos=itemView.findViewById(R.id.id_photos);
+            id_people=itemView.findViewById(R.id.id_people);
+            id_day_m_year=itemView.findViewById(R.id.id_day_m_year);
+            id_date=itemView.findViewById(R.id.id_date);
         }
+    }
+
+    private void getPeople(final int a, final Context context, final TextView view){
+        class SaveTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                //creating a task
+
+                final int holidayphotoCount = DatabaseClient
+                        .getInstance(context)
+                        .getAppDatabase()
+                        .peopleDao()
+                        .getNumberofEventPeople(a);
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //change View Data
+                        view.setText(String.valueOf(holidayphotoCount));
+                    }
+                });
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+//                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        SaveTask st = new SaveTask();
+        st.execute();
+    }
+
+    private void getPhotos(final int a, final Context context, final TextView view){
+        class SaveTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                //creating a task
+
+                final int holidayphotoCount = DatabaseClient
+                        .getInstance(context)
+                        .getAppDatabase()
+                        .photoDao()
+                        .getNumberofEventphotos(a);
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //change View Data
+                        view.setText(String.valueOf(holidayphotoCount));
+                    }
+                });
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+//                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        SaveTask st = new SaveTask();
+        st.execute();
+    }
+
+    private void getOnePhotos(final int a, final Context context, final ImageView view){
+        class SaveTask extends AsyncTask<Void, Void, Void> {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                //creating a task
+
+                final String holidayphotoCount = DatabaseClient
+                        .getInstance(context)
+                        .getAppDatabase()
+                        .photoDao()
+                        .getLatestEventphotos(a);
+                ((Activity)context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //change View Data
+                        Glide.with(context)
+                                .load(holidayphotoCount)
+                                .fallback(R.drawable.japan)
+                                .into(view);
+                    }
+                });
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void aVoid) {
+                super.onPostExecute(aVoid);
+//                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+//                Toast.makeText(getApplicationContext(), "Saved", Toast.LENGTH_LONG).show();
+            }
+        }
+
+        SaveTask st = new SaveTask();
+        st.execute();
     }
 }
