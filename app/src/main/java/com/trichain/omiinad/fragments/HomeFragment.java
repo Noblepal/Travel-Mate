@@ -2,9 +2,11 @@ package com.trichain.omiinad.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,7 +18,9 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.trichain.omiinad.Entities.HolidayTable;
+import com.trichain.omiinad.HolidayDetailActivity;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.RoomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.HolidayAdapter;
@@ -59,6 +63,40 @@ public class HomeFragment extends Fragment {
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                 HolidayAdapter holidayAdapter=new HolidayAdapter(holidays, getActivity());
                 recyclerView.setAdapter(holidayAdapter);
+            }
+        }
+
+        GetHolidays gh = new GetHolidays();
+        gh.execute();
+    }
+
+    private void setImage(final int holidayid) {
+        class GetHolidays extends AsyncTask<Void, Void, String> {
+
+            @Override
+            protected String doInBackground(Void... voids) {
+
+                final String holidayphotoCount = DatabaseClient
+                        .getInstance(getActivity())
+                        .getAppDatabase()
+                        .photoDao()
+                        .getLatestHolydayphotos(holidayid);
+
+                return holidayphotoCount;
+            }
+
+            @Override
+            protected void onPostExecute(String holidayphotoCount) {
+                super.onPostExecute(holidayphotoCount);
+
+//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
+//                recyclerView.setAdapter(adapter);
+
+                ImageView view=root.findViewById(R.id.expandedImage);
+                Glide.with(getActivity())
+                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+holidayphotoCount)
+                        .fallback(R.drawable.japan)
+                        .into(view);
             }
         }
 

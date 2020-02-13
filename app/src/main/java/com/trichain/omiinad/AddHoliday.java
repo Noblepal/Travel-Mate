@@ -78,7 +78,7 @@ public class AddHoliday extends AppCompatActivity implements OnViewSelected {
 
     @Override
     public void onViewSelected(String name1,Double latitude1, Double longitude1) {
-        Log.e(TAG, "onViewSelected: "+name1);
+        Log.e(TAG, "onViewSelected: "+latitude1);
         name=name1;
         latitude=latitude1;
         longitude=longitude1;
@@ -89,7 +89,7 @@ public class AddHoliday extends AppCompatActivity implements OnViewSelected {
         about=about1;
         if (startDate==null||stopDate==null){
             Toast.makeText(this, "Kindly fill the dates", Toast.LENGTH_SHORT).show();
-        }else if(latitude<=0.1||longitude<=0.1||name==null){
+        }else if(name==null){
             Log.e(TAG, "onViewSelected: "+latitude+" "+longitude+" "+name );
             Toast.makeText(this, "Location not Correctly captured", Toast.LENGTH_SHORT).show();
 
@@ -130,5 +130,9 @@ public class AddHoliday extends AppCompatActivity implements OnViewSelected {
         }
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e(TAG, "onActivityResult: "+requestCode );
+    }
 }

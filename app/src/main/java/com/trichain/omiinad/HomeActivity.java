@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.trichain.omiinad.Entities.HolidayTable;
 import com.trichain.omiinad.RoomDB.DatabaseClient;
 import com.trichain.omiinad.fragments.HomeFragment;
+import com.trichain.omiinad.fragments.SearchFragment;
 
 import java.util.List;
 
@@ -47,6 +48,14 @@ public class HomeActivity extends AppCompatActivity {
                                 startActivity(new Intent(HomeActivity.this, AddHoliday.class));
                             }
                         }).show();
+            }
+        });
+        ((View)findViewById(R.id.img_search)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+                ft.replace(R.id.nav_host_fragment, new SearchFragment());
+                ft.commit();
             }
         });
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);

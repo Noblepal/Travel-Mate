@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Environment;
 import android.speech.tts.Voice;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.trichain.omiinad.Entities.HolidayTable;
 import com.trichain.omiinad.HolidayDetailActivity;
 import com.trichain.omiinad.R;
@@ -57,6 +59,7 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
         //TODO set the count
         photoCount(h.getId(),context,holder.holiday_image_count);
 //        holder.holiday_image_count.setText(photoCount(h.getId(),context));
+        setImage(h.getId(),holder.imageView);
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +100,40 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
             formattedString = date.format(formatter);
         }*/
         return formattedString;
+    }
+
+    private void setImage(final int holidayid,ImageView imageView) {
+        class GetHolidays extends AsyncTask<Void, Void, String> {
+
+            @Override
+            protected String doInBackground(Void... voids) {
+
+                final String holidayphotoCount = DatabaseClient
+                        .getInstance(context)
+                        .getAppDatabase()
+                        .photoDao()
+                        .getLatestHolydayphotos(holidayid);
+
+                return holidayphotoCount;
+            }
+
+            @Override
+            protected void onPostExecute(String holidayphotoCount) {
+                super.onPostExecute(holidayphotoCount);
+
+//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
+//                recyclerView.setAdapter(adapter);
+
+                ImageView view=imageView;
+                Glide.with(context)
+                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+holidayphotoCount)
+                        .fallback(R.drawable.japan)
+                        .into(view);
+            }
+        }
+
+        GetHolidays gh = new GetHolidays();
+        gh.execute();
     }
     public void photoCount(final int a, final Context context, final TextView view){
         class SaveTask extends AsyncTask<Void, Void, Void> {

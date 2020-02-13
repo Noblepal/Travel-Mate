@@ -3,35 +3,28 @@ package com.trichain.omiinad;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.trichain.omiinad.Entities.HolidayTable;
 import com.trichain.omiinad.Entities.VisitedPlaceTable;
 import com.trichain.omiinad.RoomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.EventAdapter;
-import com.trichain.omiinad.adapters.HolidayAdapter;
-import com.trichain.omiinad.fragments.CreateEntryFragment;
-import com.trichain.omiinad.fragments.HomeFragment;
+import com.trichain.omiinad.adapters.EventAdapter2;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 public class HolidayDetailActivity extends AppCompatActivity {
 
@@ -47,6 +40,9 @@ public class HolidayDetailActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         holidayid = getIntent().getIntExtra("holiday", 0);
         Log.e(TAG, "onCreate: " + holidayid);
+
+        setImage(holidayid);
+
 
         getPlaces(holidayid);
 //        RecyclerView recyclerView = findViewById(R.id.eventsrec);
@@ -66,14 +62,15 @@ public class HolidayDetailActivity extends AppCompatActivity {
                         .setAction("Yes", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Bundle bundle = new Bundle();
-                                bundle.putInt("holiday",holidayid);
-                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                                CreateEntryFragment createEntryFragment = new CreateEntryFragment();
-                                createEntryFragment.setArguments(bundle);
-                                ft.replace(R.id.add_place_fragment, createEntryFragment);
-                                ft.commit();
-                                fab.setVisibility(View.GONE);
+                                Intent bundle = new Intent(HolidayDetailActivity.this,CreateEntry.class);
+                                bundle.putExtra("holiday",holidayid);
+                                startActivity(bundle);
+//                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//                                CreateEntryFragment createEntryFragment = new CreateEntryFragment();
+//                                createEntryFragment.setArguments(bundle);
+//                                ft.replace(R.id.add_place_fragment, createEntryFragment);
+//                                ft.commit();
+//                                fab.setVisibility(View.GONE);
                             }
                         }).show();
             }
@@ -101,6 +98,40 @@ public class HolidayDetailActivity extends AppCompatActivity {
         });
     }
 
+    private void setImage(final int holidayid) {
+        class GetHolidays extends AsyncTask<Void, Void, String> {
+
+            @Override
+            protected String doInBackground(Void... voids) {
+
+                final String holidayphotoCount = DatabaseClient
+                        .getInstance(HolidayDetailActivity.this)
+                        .getAppDatabase()
+                        .photoDao()
+                        .getLatestHolydayphotos(holidayid);
+
+                return holidayphotoCount;
+            }
+
+            @Override
+            protected void onPostExecute(String holidayphotoCount) {
+                super.onPostExecute(holidayphotoCount);
+
+//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
+//                recyclerView.setAdapter(adapter);
+
+                ImageView view=findViewById(R.id.expandedImage);
+                Glide.with(HolidayDetailActivity.this)
+                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+holidayphotoCount)
+                        .fallback(R.drawable.japan)
+                        .into(view);
+            }
+        }
+
+        GetHolidays gh = new GetHolidays();
+        gh.execute();
+    }
+
     private void getPlaces(final int holidayid) {
         class GetHolidays extends AsyncTask<Void, Void, List<VisitedPlaceTable>> {
 
@@ -124,7 +155,7 @@ public class HolidayDetailActivity extends AppCompatActivity {
 
                 RecyclerView recyclerView = findViewById(R.id.eventsrec);
                 recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
-                EventAdapter eventAdapter = new EventAdapter(visitedPlaceTables, HolidayDetailActivity.this);
+                EventAdapter2 eventAdapter = new EventAdapter2(visitedPlaceTables, HolidayDetailActivity.this);
                 recyclerView.setAdapter(eventAdapter);
             }
         }

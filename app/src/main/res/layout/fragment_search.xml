@@ -1,19 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:background="@color/white"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/text_send"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_entry_text"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="8dp"
+        android:layout_marginRight="80dp"
+        app:layout_constraintEnd_toStartOf="@+id/go"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/id_msg"
+            android:layout_width="match_parent"
+            android:inputType="text"
+            android:layout_height="wrap_content"
+            android:drawableRight="@drawable/ic_search"
+            android:drawableTint="@color/black"
+            android:gravity="bottom"
+            android:hint="Entry Text" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageButton
+        android:id="@+id/go"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="-180dp"
+        android:background="#01FFFFFF"
+        app:layout_constraintBottom_toTopOf="@+id/eventsrec"
+        app:layout_constraintCircleRadius="12dp"
+        app:layout_constraintRight_toRightOf="@+id/til_entry_text"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/eventsrec"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
+        tools:listitem="@layout/item_list_content" />
 </androidx.constraintlayout.widget.ConstraintLayout>

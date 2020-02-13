@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.speech.tts.Voice;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,20 +16,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.trichain.omiinad.Entities.VisitedPlaceTable;
-import com.trichain.omiinad.HolidayDetailActivity;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.RoomDB.DatabaseClient;
 import com.trichain.omiinad.ViewPlace;
 
-import java.util.ArrayList;
 import java.util.List;
 
-public class EventAdapter extends RecyclerView.Adapter<EventAdapter.HolidayViewHolder> {
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayViewHolder> {
 
     List<VisitedPlaceTable> visitedPlaceTableList;
     Context context;
 
-    public EventAdapter(List<VisitedPlaceTable> visitedPlaceTableList, Context context) {
+    public SearchAdapter(List<VisitedPlaceTable> visitedPlaceTableList, Context context) {
         this.visitedPlaceTableList = visitedPlaceTableList;
         this.context = context;
     }
