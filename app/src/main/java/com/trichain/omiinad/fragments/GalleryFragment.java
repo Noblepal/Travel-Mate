@@ -24,6 +24,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
+
 public class GalleryFragment extends Fragment {
 
 
