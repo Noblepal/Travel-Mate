@@ -30,6 +30,7 @@ public class GalleryFragment extends Fragment {
 
     public GalleryFragment() {
         // Required empty public constructor
+
     }
 
 
