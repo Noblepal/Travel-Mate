@@ -16,10 +16,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.InputType;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -48,6 +49,9 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipDrawable;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
 import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
@@ -61,6 +65,7 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -83,16 +88,20 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
     Location mLastLocation;
     Marker mCurrLocationMarker;
     int holiday, people1;
-    ArrayList<String> name = new ArrayList<>();
+    List<String> peopleNames = new ArrayList<>();
     ArrayList<String> name2 = new ArrayList<>();
     List<com.esafirm.imagepicker.model.Image> images;
     int strtext;
+    private AppCompatEditText personNames;
+    private int SpannedLength = 0, chipLength = 4;
+    String[] ts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_entry);
         holiday = getIntent().getIntExtra("holiday", 0);
+        Log.d(TAG, "onCreate: holiday -> " + holiday);
         people1 = 0;
         ((TextView) findViewById(R.id.id_date)).setText(getDateOnly());
         ((TextView) findViewById(R.id.id_day)).setText(getDayMonthYear());
@@ -124,23 +133,24 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(CreateEntryActivity.this);
-                builder.setTitle("Enter number of people");
-
-                // Set up the input
-                final EditText input = new EditText(CreateEntryActivity.this);
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_NUMBER);
-                builder.setView(input);
+                builder.setTitle("Enter peopleNames of person");
+                View rootView = LayoutInflater.from(CreateEntryActivity.this).inflate(R.layout.dialog_add_people, null);
+                personNames = rootView.findViewById(R.id.personName);
+                builder.setView(rootView);
 
                 // Set up the buttons
                 builder.setPositiveButton("add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        name.add(input.getText().toString());
-                        name2.add(input.getText().toString());
-                        if (Integer.parseInt(input.getText().toString()) > 0)
-                            people1 = Integer.parseInt(input.getText().toString());
-                        ((TextView) findViewById(R.id.people)).setText(String.valueOf(people1));
+                        String[] names = personNames.getText().toString().split(",");
+                        peopleNames.addAll(Arrays.asList(names));
+                        name2.addAll(Arrays.asList(names));
+                        if (peopleNames.size() > 0) {
+                            people1 = peopleNames.size();
+                            ((TextView) findViewById(R.id.people)).setText(String.valueOf(people1));
+                        } else {
+                            ((TextView) findViewById(R.id.people)).setText(0);
+                        }
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -217,7 +227,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                 setGoogleMapStyle(CreateEntryActivity.this, googleMap);
 
                 // For showing a move to my location button
-//                googleMap.setMyLocationEnabled(true);
+                // googleMap.setMyLocationEnabled(true);
 
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng(-34, 151);
@@ -352,11 +362,11 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                             e.printStackTrace();
                         }
                     }
-                    for (int i = 0; i < name.size(); i++) {
+                    for (int i = 0; i < peopleNames.size(); i++) {
                         PeopleTable peopleTable = new PeopleTable();
                         peopleTable.setHolidayID(holiday);
                         peopleTable.setPlaceID(vid2);
-                        peopleTable.setPersonName(name.get(i));
+                        peopleTable.setPersonName(peopleNames.get(i));
                         DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                                 .peopleDao()
                                 .insert(peopleTable);
@@ -632,5 +642,18 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         Toast.makeText(CreateEntryActivity.this,
                 "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
                 .show();
+    }
+
+    private Chip getChip(final ChipGroup entryChipGroup, String text) {
+        final Chip chip = new Chip(this);
+        chip.setChipDrawable(ChipDrawable.createFromResource(this, R.xml.chip));
+        int paddingDp = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 10,
+                getResources().getDisplayMetrics()
+        );
+        chip.setPadding(paddingDp, paddingDp, paddingDp, paddingDp);
+        chip.setText(text);
+        chip.setOnCloseIconClickListener(v -> entryChipGroup.removeView(chip));
+        return chip;
     }
 }

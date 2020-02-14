@@ -20,6 +20,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.trichain.omiinad.adapters.EventAdapter;
 import com.trichain.omiinad.adapters.EventAdapter2;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.roomDB.DatabaseClient;
@@ -137,7 +138,7 @@ public class HolidayDetailActivity extends AppCompatActivity {
 
                 RecyclerView recyclerView = findViewById(R.id.eventsrec);
                 recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
-                EventAdapter2 eventAdapter = new EventAdapter2(visitedPlaceTables, HolidayDetailActivity.this);
+                EventAdapter eventAdapter = new EventAdapter(visitedPlaceTables, HolidayDetailActivity.this);
                 recyclerView.setAdapter(eventAdapter);
 
                 if (visitedPlaceTables.size() == 0) {
@@ -155,9 +156,11 @@ public class HolidayDetailActivity extends AppCompatActivity {
 
     private void showNoHolidaysLayout() {
         rlNoPlaces.setVisibility(View.VISIBLE);
-        imgNoPlaces.setOnClickListener(v ->
-                startActivity(new Intent(HolidayDetailActivity.this, CreateEntryActivity.class))
-        );
+        imgNoPlaces.setOnClickListener(v -> {
+            Intent bundle = new Intent(HolidayDetailActivity.this, CreateEntryActivity.class);
+            bundle.putExtra("holiday", holidayid);
+            startActivity(bundle);
+        });
     }
 
     private void hideNoHolidaysLayout() {

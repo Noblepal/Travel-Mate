@@ -126,7 +126,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(EditEntryActivity.this);
-                builder.setTitle("Enter the persons name");
+                builder.setTitle("Enter the persons peopleNames");
 
                 // Set up the input
                 final EditText input = new EditText(EditEntryActivity.this);
