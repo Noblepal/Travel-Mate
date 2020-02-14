@@ -1,11 +1,9 @@
 package com.trichain.omiinad;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,12 +17,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
-import com.trichain.omiinad.Entities.HolidayTable;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.fragments.HomeFragment;
 import com.trichain.omiinad.fragments.SearchFragment;
-
-import java.util.List;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -36,21 +29,16 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        //toolbar.setTitle(R.string.app_name);
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Add holiday?", Snackbar.LENGTH_LONG)
-                        .setAction("Yes", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                                startActivity(new Intent(HomeActivity.this, AddHoliday.class));
-                            }
-                        }).show();
+                        .setAction("Yes", v -> startActivity(new Intent(HomeActivity.this, AddHolidayActivity.class))).show();
             }
         });
-        ((View)findViewById(R.id.img_search)).setOnClickListener(new View.OnClickListener() {
+        ((View) findViewById(R.id.img_search)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
@@ -61,21 +49,8 @@ public class HomeActivity extends AppCompatActivity {
         final DrawerLayout drawer = findViewById(R.id.drawer_layout);
         NavigationView navigationView = findViewById(R.id.nav_view);
 
-        navigationView.getHeaderView(0).findViewById(R.id.img_home_nav).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                drawer.closeDrawers();
-                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-                ft.replace(R.id.nav_host_fragment, new HomeFragment());
-                ft.commit();
-                Toast.makeText(HomeActivity.this, "hone clicked", Toast.LENGTH_SHORT).show();
-//                startActivity();
-            }
-        });
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_visited, R.id.nav_home, R.id.nav_search, R.id.nav_gallery)
+                R.id.nav_visited, R.id.nav_home, R.id.nav_search, R.id.nav_gallery, R.id.nav_settings)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
@@ -88,7 +63,7 @@ public class HomeActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.home, menu);
+        //getMenuInflater().inflate(R.menu.home, menu);
         return true;
     }
 

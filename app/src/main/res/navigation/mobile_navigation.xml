@@ -28,4 +28,10 @@
         android:name="com.trichain.omiinad.fragments.GalleryFragment"
         android:label="@string/menu_slideshow"
         tools:layout="@layout/fragment_gallery" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.trichain.omiinad.fragments.SettingsFragment"
+        android:label="@string/action_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

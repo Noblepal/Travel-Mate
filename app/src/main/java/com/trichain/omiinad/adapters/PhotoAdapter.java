@@ -2,7 +2,6 @@ package com.trichain.omiinad.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.view.LayoutInflater;
@@ -15,11 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.Entities.PhotoTable;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
+import com.trichain.omiinad.PhotoFullPopupWindow;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.ViewPlace;
+import com.trichain.omiinad.entities.PhotoTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
@@ -27,6 +25,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
 
     List<PhotoTable> photoTables;
     Context context;
+    boolean isImageFitToScreen;
 
     public PhotoAdapter(List<PhotoTable> photoTables, Context context) {
         this.photoTables = photoTables;
@@ -42,8 +41,18 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
 
     @Override
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
-        final PhotoTable h= photoTables.get(position);
-        getOnePhotos(h.getPhotoName(),context,holder.imageView);
+        final PhotoTable h = photoTables.get(position);
+        getOnePhotos(h.getPhotoName(), context, holder.imageView);
+
+        holder.photoName.setText(h.getPhotoName());
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new PhotoFullPopupWindow(context, R.layout.popup_photo_full, v,
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + h.getPhotoName(),
+                        null);
+            }
+        });
     }
 
     @Override
@@ -51,28 +60,29 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
         return photoTables.size();
     }
 
-    class HolidayViewHolder extends RecyclerView.ViewHolder{
+    class HolidayViewHolder extends RecyclerView.ViewHolder {
         ImageView imageView;
+        TextView photoName;
+
         public HolidayViewHolder(@NonNull View itemView) {
             super(itemView);
-            imageView=itemView.findViewById(R.id.imageNews);
+            imageView = itemView.findViewById(R.id.imageNews);
+            photoName = itemView.findViewById(R.id.tvPhotoName);
         }
     }
 
-    private void getPeople(final int a, final Context context, final TextView view){
+    private void getPeople(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
             protected Void doInBackground(Void... voids) {
-
-                //creating a task
 
                 final int holidayphotoCount = DatabaseClient
                         .getInstance(context)
                         .getAppDatabase()
                         .peopleDao()
                         .getNumberofEventPeople(a);
-                ((Activity)context).runOnUiThread(new Runnable() {
+                ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //change View Data
@@ -94,7 +104,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
         st.execute();
     }
 
-    private void getPhotos(final int a, final Context context, final TextView view){
+    private void getPhotos(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -107,7 +117,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
                         .getAppDatabase()
                         .photoDao()
                         .getNumberofEventphotos(a);
-                ((Activity)context).runOnUiThread(new Runnable() {
+                ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //change View Data
@@ -129,13 +139,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
         st.execute();
     }
 
-    private void getOnePhotos(final String a, final Context context, final ImageView view){
-        ((Activity)context).runOnUiThread(new Runnable() {
+    private void getOnePhotos(final String a, final Context context, final ImageView view) {
+        ((Activity) context).runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 //change View Data
                 Glide.with(context)
-                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+a)
+                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + a)
                         .fallback(R.drawable.japan)
                         .into(view);
             }

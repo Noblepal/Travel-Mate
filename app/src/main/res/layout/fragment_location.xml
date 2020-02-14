@@ -1,62 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/grey"
     android:orientation="vertical"
     tools:context=".fragments.LocationFragment">
 
-    <!-- TODO: Update blank fragment layout -->
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_margin="8dp"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/locationTxt"
-            android:textSize="22dp"
-            android:layout_margin="16dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select the Location for your holiday"/>
-    </com.google.android.material.card.MaterialCardView>
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_margin="8dp"
-        android:layout_height="wrap_content">
+        app:cardCornerRadius="6dp"
+        app:cardElevation="4dp">
+
         <LinearLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_height="wrap_content">
+            android:padding="16dp">
 
-            <fragment android:id="@+id/autocomplete_fragment"
+            <TextView
+                android:id="@+id/locationTxt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:text="Select the location for your holiday"
+                android:textSize="22sp" />
+
+            <fragment
+                android:id="@+id/autocomplete_fragment"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
                 android:drawableStart="@drawable/ic_search"
-                android:drawablePadding="8dp"
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-                />
+                android:drawablePadding="8dp" />
 
-<!--            <EditText-->
-<!--                android:id="@+id/searchTxt"-->
-<!--                android:textSize="22dp"-->
-<!--                android:layout_margin="16dp"-->
-<!--                android:drawableLeft="@drawable/ic_search"-->
-<!--                android:drawablePadding="8dp"-->
-<!--                android:drawableTint="@color/black"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:text="Birmingha"/>-->
             <TextView
                 android:id="@+id/currentLocTxt"
-                android:textSize="22dp"
-                android:layout_margin="16dp"
-                android:drawableLeft="@drawable/ic_my_location"
-                android:drawablePadding="8dp"
-                android:drawableTint="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Current Location"/>
+                android:layout_margin="16dp"
+                android:drawableStart="@drawable/ic_my_location"
+                android:drawablePadding="28dp"
+                android:padding="16dp"
+                android:text="Current Location"
+                android:textSize="22sp" />
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 

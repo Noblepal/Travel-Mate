@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.trichain.omiinad">
 
-    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <application
         android:allowBackup="true"
@@ -14,10 +15,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".ViewPlace"></activity>
-        <activity android:name=".CreateEntry" />
-        <activity android:name=".EditEntry" />
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".ViewPlaceActivity" />
+        <activity android:name=".CreateEntryActivity" />
+        <activity android:name=".EditEntryActivity" />
 
 
         <meta-data
@@ -28,8 +30,8 @@
             android:name=".HolidayDetailActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AddHoliday"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:name=".AddHolidayActivity"
+            android:theme="@style/AppTheme" />
         <activity
             android:name=".HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">

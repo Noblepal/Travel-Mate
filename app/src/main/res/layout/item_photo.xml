@@ -1,19 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:id="@+id/one_place"
-    android:orientation="horizontal"
-    android:weightSum="2">
+    app:cardCornerRadius="8dp"
+    app:cardPreventCornerOverlap="false">
 
-    <ImageView
-        android:id="@+id/imageNews"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="220dp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"
-        android:src="@drawable/japan" />
+        android:layout_height="220dp">
 
-</LinearLayout>
+        <ImageView
+            android:id="@+id/imageNews"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/japan" />
+
+        <TextView
+            android:id="@+id/tvPhotoName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@color/black_overlay"
+            android:gravity="center"
+            android:padding="8dp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            tools:text="Holiday Name" />
+    </RelativeLayout>
+
+</com.google.android.material.card.MaterialCardView>

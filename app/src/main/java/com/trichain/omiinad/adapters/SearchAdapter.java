@@ -15,12 +15,14 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.ViewPlace;
+import com.trichain.omiinad.ViewPlaceActivity;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
+
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayViewHolder> {
 
@@ -41,14 +43,14 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
 
     @Override
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
-        final VisitedPlaceTable h= visitedPlaceTableList.get(position);
+        final VisitedPlaceTable h = visitedPlaceTableList.get(position);
         holder.tvName.setText(h.getName());
         holder.id_date.setText(h.getVisitDate());
         holder.id_day_m_year.setText(h.getVisitDate());
 //        holder.id_people.setText(getPeople(position));
-        getPeople(h.getId(),context,holder.id_people);
-        getPhotos(h.getId(),context,holder.id_photos);
-        getOnePhotos(h.getId(),context,holder.imageView);
+        getPeople(h.getId(), context, holder.id_people);
+        getPhotos(h.getId(), context, holder.id_photos);
+        getOnePhotos(h.getId(), context, holder.imageView);
 //        holder.id_photos.setText(getPhotos(position,context,holder.id_photos));
 //        holder.imageView.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -59,8 +61,8 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
         holder.one_place.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(context, ViewPlace.class);
-                intent.putExtra("place_id",h.getId());
+                Intent intent = new Intent(context, ViewPlaceActivity.class);
+                intent.putExtra("place_id", h.getId());
                 context.startActivity(intent);
             }
         });
@@ -71,23 +73,24 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
         return visitedPlaceTableList.size();
     }
 
-    class HolidayViewHolder extends RecyclerView.ViewHolder{
-        TextView tvName,id_date,id_day_m_year,id_people,id_photos;
+    class HolidayViewHolder extends RecyclerView.ViewHolder {
+        TextView tvName, id_date, id_day_m_year, id_people, id_photos;
         ImageView imageView;
         View one_place;
+
         public HolidayViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.id_textSite);
-            imageView=itemView.findViewById(R.id.imageNews);
-            id_photos=itemView.findViewById(R.id.id_photos);
-            id_people=itemView.findViewById(R.id.id_people);
-            id_day_m_year=itemView.findViewById(R.id.id_day_m_year);
-            id_date=itemView.findViewById(R.id.id_date);
-            one_place=itemView.findViewById(R.id.one_place);
+            imageView = itemView.findViewById(R.id.imageNews);
+            id_photos = itemView.findViewById(R.id.id_photos);
+            id_people = itemView.findViewById(R.id.id_people);
+            id_day_m_year = itemView.findViewById(R.id.id_day_m_year);
+            id_date = itemView.findViewById(R.id.id_date);
+            one_place = itemView.findViewById(R.id.one_place);
         }
     }
 
-    private void getPeople(final int a, final Context context, final TextView view){
+    private void getPeople(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -100,7 +103,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
                         .getAppDatabase()
                         .peopleDao()
                         .getNumberofEventPeople(a);
-                ((Activity)context).runOnUiThread(new Runnable() {
+                ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //change View Data
@@ -122,7 +125,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
         st.execute();
     }
 
-    private void getPhotos(final int a, final Context context, final TextView view){
+    private void getPhotos(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -135,7 +138,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
                         .getAppDatabase()
                         .photoDao()
                         .getNumberofEventphotos(a);
-                ((Activity)context).runOnUiThread(new Runnable() {
+                ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //change View Data
@@ -157,7 +160,7 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
         st.execute();
     }
 
-    private void getOnePhotos(final int a, final Context context, final ImageView view){
+    private void getOnePhotos(final int a, final Context context, final ImageView view) {
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -170,13 +173,15 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
                         .getAppDatabase()
                         .photoDao()
                         .getLatestEventphotos(a);
-                ((Activity)context).runOnUiThread(new Runnable() {
+                ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //change View Data
                         Glide.with(context)
-                                .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+holidayphotoCount)
+                                .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
                                 .fallback(R.drawable.japan)
+                                .placeholder(R.drawable.ic_landscape)
+                                .transition(withCrossFade(500))
                                 .into(view);
                     }
                 });

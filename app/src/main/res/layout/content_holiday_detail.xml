@@ -12,6 +12,7 @@
         android:id="@+id/eventsrec"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        tools:itemCount="0"
         tools:listitem="@layout/item_list_content" />
 
 </androidx.core.widget.NestedScrollView>
