@@ -15,10 +15,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
+import com.trichain.omiinad.ViewPlaceActivity;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.ViewPlace;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
@@ -58,7 +58,7 @@ public class EventAdapter2 extends RecyclerView.Adapter<EventAdapter2.HolidayVie
         holder.one_place.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent=new Intent(context, ViewPlace.class);
+                Intent intent=new Intent(context, ViewPlaceActivity.class);
                 intent.putExtra("place_id",h.getId());
                 context.startActivity(intent);
             }

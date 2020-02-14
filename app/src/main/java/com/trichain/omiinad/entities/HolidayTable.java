@@ -1,4 +1,4 @@
-package com.trichain.omiinad.Entities;
+package com.trichain.omiinad.entities;
 
 import android.os.Build;
 
@@ -9,7 +9,6 @@ import androidx.room.TypeConverter;
 
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 public class HolidayTable implements Serializable {

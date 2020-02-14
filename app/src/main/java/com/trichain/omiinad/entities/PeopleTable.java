@@ -1,4 +1,4 @@
-package com.trichain.omiinad.Entities;
+package com.trichain.omiinad.entities;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;

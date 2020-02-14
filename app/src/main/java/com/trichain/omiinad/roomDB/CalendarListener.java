@@ -1,4 +1,4 @@
-package com.trichain.omiinad.RoomDB;
+package com.trichain.omiinad.roomDB;
 
 import java.util.Calendar;
 

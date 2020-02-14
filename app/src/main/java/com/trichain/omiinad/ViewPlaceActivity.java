@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,12 +15,9 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.InputType;
 import android.util.Log;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.NumberPicker;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,8 +29,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.esafirm.imagepicker.features.ImagePicker;
-import com.esafirm.imagepicker.features.ReturnMode;
 import com.esafirm.imagepicker.model.Image;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -52,10 +48,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.textfield.TextInputEditText;
 import com.synnapps.carouselview.CarouselView;
-import com.trichain.omiinad.Entities.PeopleTable;
-import com.trichain.omiinad.Entities.PhotoTable;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
+import com.synnapps.carouselview.ImageListener;
+import com.trichain.omiinad.entities.PeopleTable;
+import com.trichain.omiinad.entities.PhotoTable;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,17 +61,18 @@ import java.io.IOException;
 import java.nio.channels.FileChannel;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
+import static com.trichain.omiinad.Utils.setGoogleMapStyle;
+
+public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GoogleMap.OnMapLongClickListener {
 
-    public static String TAG = "CreateEntry";
+    public static String TAG = "CreateEntryActivity";
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 111;
     View root;
     Double longitude, latitude;
@@ -84,130 +82,104 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-    int holiday, people1, place;
+    int place, people1, holiday;
     List<Image> images;
-    ArrayList<String> names = new ArrayList<String>();
-    ArrayList<String> names2 = new ArrayList<String>();
     int strtext;
+    CarouselView carouselView;
+    List<PhotoTable> photoTables2;
     String people = "";
-    String date, time;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_entry);
-        holiday = getIntent().getIntExtra("holiday", 0);
-        place = getIntent().getIntExtra("place", 0);
+        setContentView(R.layout.activity_view_place);
+        place = getIntent().getIntExtra("place_id", 0);
         people1 = 0;
 
-        ((View) findViewById(R.id.back_btn2)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditEntry.super.onBackPressed();
-            }
-        });
-        ((ImageButton) findViewById(R.id.img_add_photo)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImagePicker.create(EditEntry.this)
-                        .returnMode(ReturnMode.CAMERA_ONLY)
-                        .folderMode(true) // folder mode (false by default)
-                        .toolbarFolderTitle("Folder") // folder selection title
-                        .toolbarImageTitle("Tap to select") // image selection title
-                        .toolbarArrowColor(Color.BLACK) // Toolbar 'up' arrow color
-                        .multi() // multi mode (default mode)
-                        .limit(5) // max images can be selected (99 by default)
-                        .enableLog(true) // disabling log
-                        .start(); // start image picker activity with request code
-
-            }
-        });
-        ((ImageButton) findViewById(R.id.img_add_members)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(EditEntry.this);
-                builder.setTitle("Enter the persons name");
-
-                // Set up the input
-                final EditText input = new EditText(EditEntry.this);
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
-
-                // Set up the buttons
-                builder.setPositiveButton("add", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        names.add(input.getText().toString());
-                        names2.add(input.getText().toString());
-                        people1 = names.size();
-                        ((TextView) findViewById(R.id.people)).setText(String.valueOf(people1));
-                    }
-                });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-
-                builder.show();
-
-               /*
-                ImageButton ok_now=findViewById(R.id.ok_now);
-                final NumberPicker numberPicker = (NumberPicker) findViewById(R.id.dialog_number_picker);
-                numberPicker.setMaxValue(50);
-                numberPicker.setMinValue(1);
-                numberPicker.setWrapSelectorWheel(false);
-                numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-                    @Override
-                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                        people1=newVal;
-                        ((TextView)findViewById(R.id.people)).setText(String.valueOf(people1));
-                    }
-
-                });
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    numberPicker.setOnContextClickListener(new View.OnContextClickListener() {
-                        @Override
-                        public boolean onContextClick(View v) {
-                            Log.d(TAG, "onContextClick: ");
-                            numberPicker.setVisibility(View.GONE);
-                            return false;
-                        }
-                    });
-                }
-                numberPicker.setVisibility(View.VISIBLE);
-                ok_now.setVisibility(View.VISIBLE);
-                ok_now.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        numberPicker.setVisibility(View.GONE);
-                        ok_now.setVisibility(View.GONE);
-                    }
-                });
-                View vva= numberPicker;
-                vva.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                    @Override
-                    public void onFocusChange(View v, boolean hasFocus) {
-                        if (!hasFocus){
-                            numberPicker.clearFocus();
-                            v.setVisibility(View.GONE);
-                            ok_now.setVisibility(View.GONE);
-                        }
-                        Log.e(TAG, "onFocusChange: "+hasFocus );
-                    }
-                });*/
-
-            }
-        });
+        //carosel
+        getImages();
+//        ((ImageButton) findViewById(R.id.img_add_photo)).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ImagePicker.create(ViewPlaceActivity.this)
+//                        .returnMode(ReturnMode.CAMERA_ONLY)
+//                        .folderMode(true) // folder mode (false by default)
+//                        .toolbarFolderTitle("Folder") // folder selection title
+//                        .toolbarImageTitle("Tap to select") // image selection title
+//                        .toolbarArrowColor(Color.BLACK) // Toolbar 'up' arrow color
+//                        .multi() // multi mode (default mode)
+//                        .limit(5) // max images can be selected (99 by default)
+//                        .enableLog(true) // disabling log
+//                        .start(); // start image picker activity with request code
+//
+//            }
+//        });
+//        ((ImageButton) findViewById(R.id.img_add_members)).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                ImageButton ok_now=findViewById(R.id.ok_now);
+//                final NumberPicker numberPicker = (NumberPicker) findViewById(R.id.dialog_number_picker);
+//                numberPicker.setMaxValue(50);
+//                numberPicker.setMinValue(1);
+//                numberPicker.setWrapSelectorWheel(false);
+//                numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+//                    @Override
+//                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+//                        people1=newVal;
+//                        ((TextView)findViewById(R.id.people)).setText(String.valueOf(people1));
+//                    }
+//
+//                });
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                    numberPicker.setOnContextClickListener(new View.OnContextClickListener() {
+//                        @Override
+//                        public boolean onContextClick(View v) {
+//                            Log.d(TAG, "onContextClick: ");
+//                            numberPicker.setVisibility(View.GONE);
+//                            return false;
+//                        }
+//                    });
+//                }
+//                numberPicker.setVisibility(View.VISIBLE);
+//                ok_now.setVisibility(View.VISIBLE);
+//                ok_now.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View v) {
+//                        numberPicker.setVisibility(View.GONE);
+//                        ok_now.setVisibility(View.GONE);
+//                    }
+//                });
+//                View vva= numberPicker;
+//                vva.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//                    @Override
+//                    public void onFocusChange(View v, boolean hasFocus) {
+//                        if (!hasFocus){
+//                            numberPicker.clearFocus();
+//                            v.setVisibility(View.GONE);
+//                            ok_now.setVisibility(View.GONE);
+//                        }
+//                        Log.e(TAG, "onFocusChange: "+hasFocus );
+//                    }
+//                });
+//
+//            }
+//        });
+//
+//
+//        findViewById(R.id.img_change_location).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startEditing();
+//            }
+//        });
+        //Map
         mMapView = (MapView) findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
         mMapView.onResume(); // needed to get the map to display immediately
 
         try {
-            MapsInitializer.initialize(EditEntry.this.getApplicationContext());
+            MapsInitializer.initialize(ViewPlaceActivity.this.getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -224,9 +196,10 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
+                setGoogleMapStyle(ViewPlaceActivity.this, googleMap);
 
                 // For showing a move to my location button
-//                googleMap.setMyLocationEnabled(true);
+                // googleMap.setMyLocationEnabled(true);
 
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng(latitude, longitude);
@@ -237,7 +210,7 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 //Initialize Google Play Services
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(EditEntry.this,
+                    if (ContextCompat.checkSelfPermission(ViewPlaceActivity.this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
                         //Location Permission already granted
@@ -265,14 +238,13 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
         });
     }
 
-
     private void getPeople() {
         class GetPeople extends AsyncTask<Void, Void, List<PeopleTable>> {
 
             @Override
             protected List<PeopleTable> doInBackground(Void... voids) {
                 List<PeopleTable> peopleTables = DatabaseClient
-                        .getInstance(EditEntry.this)
+                        .getInstance(ViewPlaceActivity.this)
                         .getAppDatabase()
                         .peopleDao()
                         .getAllofEventPeople(place);
@@ -284,19 +256,17 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
                 super.onPostExecute(peopleTables);
                 for (int i = 0; i < peopleTables.size(); i++) {
                     Log.e(TAG, "getPersonName: " + peopleTables.get(i).getPersonName());
-                    if (names.size() == 0) {
-                        names.add(peopleTables.get(i).getPersonName());
-
+                    if (people.contentEquals("")) {
                         people = peopleTables.get(i).getPersonName();
                     } else {
-                        names.add(peopleTables.get(i).getPersonName());
+
                         people = people + ", " + peopleTables.get(i).getPersonName();
                     }
                 }
-                EditEntry.this.runOnUiThread(new Runnable() {
+                ViewPlaceActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        ((TextView) findViewById(R.id.people)).setText(String.valueOf(names.size()));
+                        ((TextView) findViewById(R.id.names)).setText(people);
                     }
                 });
 
@@ -313,7 +283,7 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
             @Override
             protected VisitedPlaceTable doInBackground(Void... voids) {
                 VisitedPlaceTable visitedPlaceTables = DatabaseClient
-                        .getInstance(EditEntry.this)
+                        .getInstance(ViewPlaceActivity.this)
                         .getAppDatabase()
                         .visitedPlaceDao()
                         .getHolidayIdofplace(place);
@@ -324,7 +294,7 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
             protected void onPostExecute(VisitedPlaceTable visitedPlaceTables) {
                 super.onPostExecute(visitedPlaceTables);
                 holiday = visitedPlaceTables.getHolidayID();
-                EditEntry.this.runOnUiThread(new Runnable() {
+                ViewPlaceActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         try {
@@ -333,23 +303,18 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
-                        ((com.google.android.material.textfield.TextInputEditText) findViewById(R.id.id_title)).setText(visitedPlaceTables.getName());
-                        /*((View) findViewById(R.id.hide_me)).setOnClickListener(new View.OnClickListener() {
+                        ((TextView) findViewById(R.id.place_name)).setText(visitedPlaceTables.getName());
+                        ((View) findViewById(R.id.hide_me)).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent intent = new Intent(EditEntry.this, EditEntry.class);
-                                intent.putExtra("place",place);
-                                intent.putExtra("holiday",holiday);
+                                Intent intent = new Intent(ViewPlaceActivity.this, EditEntryActivity.class);
+                                intent.putExtra("place", place);
+                                intent.putExtra("holiday", holiday);
                                 startActivity(intent);
                             }
-                        });*/
+                        });
                         ((TextView) findViewById(R.id.tv_time1)).setText(visitedPlaceTables.getVisitTime());
-                        ((com.google.android.material.textfield.TextInputEditText) findViewById(R.id.id_msg)).setText(visitedPlaceTables.getText());
-                        latitude = visitedPlaceTables.getLatitude();
-                        longitude = visitedPlaceTables.getLongitude();
-
-                        date = visitedPlaceTables.getVisitDate();
-                        time = visitedPlaceTables.getVisitTime();
+                        ((TextView) findViewById(R.id.til_entry_title)).setText(visitedPlaceTables.getText());
                         setGoogleMap(visitedPlaceTables.getLatitude(), visitedPlaceTables.getLongitude(), visitedPlaceTables.getName());
                     }
                 });
@@ -360,6 +325,50 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
         GetHoliday gh = new GetHoliday();
         gh.execute();
     }
+
+    private void getImages() {
+        class GetImages extends AsyncTask<Void, Void, List<PhotoTable>> {
+
+            @Override
+            protected List<PhotoTable> doInBackground(Void... voids) {
+                List<PhotoTable> photoTables = DatabaseClient
+                        .getInstance(ViewPlaceActivity.this)
+                        .getAppDatabase()
+                        .photoDao()
+                        .getAllEventphotos(place);
+                return photoTables;
+            }
+
+            @Override
+            protected void onPostExecute(List<PhotoTable> photoTables) {
+                super.onPostExecute(photoTables);
+                photoTables2 = photoTables;
+                carouselView = (CarouselView) findViewById(R.id.carouselView);
+                carouselView.setImageListener(imageListener);
+                carouselView.setPageCount(photoTables.size());//sampleImages.length
+
+
+                for (int i = 0; i < photoTables.size(); i++) {
+                    Log.e(TAG, "doInBackground: " + photoTables.get(i).getPhotoName());
+                }
+            }
+        }
+
+        GetImages gh = new GetImages();
+        gh.execute();
+    }
+
+    ImageListener imageListener = new ImageListener() {
+        @Override
+        public void setImageForPosition(int position, ImageView imageView) {
+//                imageView.setImageResource(sampleImages[position]);
+            String filename = photoTables2.get(position).getPhotoName();
+            Glide.with(ViewPlaceActivity.this)
+                    .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
+                    .fallback(R.drawable.japan)
+                    .into(imageView);
+        }
+    };
 
     public void trySave(View v) {
         TextView img_add_photo_no, id_date, id_day, tv_time1, people;
@@ -373,14 +382,16 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
         id_msg = findViewById(R.id.id_msg);
         people = findViewById(R.id.people);
 
-        if (id_title.getText().toString().contentEquals("")) {
+        if (img_add_photo_no.getText().toString().contentEquals("0")) {
+            Toast.makeText(this, "Kindly add some photos", Toast.LENGTH_SHORT).show();
+        } else if (id_title.getText().toString().contentEquals("")) {
             Toast.makeText(this, "Please fill the title", Toast.LENGTH_SHORT).show();
         } else if (id_msg.getText().toString().contentEquals("")) {
             Toast.makeText(this, "Please add some details", Toast.LENGTH_SHORT).show();
-        } else if (holiday == 0) {
+        } else if (place == 0) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
-        } else if (names.size()==0) {
+        } else if (people1 == 0) {
             Toast.makeText(this, "Select Number of people", Toast.LENGTH_SHORT).show();
 
         } else {
@@ -395,10 +406,8 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
             Calendar c = Calendar.getInstance();
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             SimpleDateFormat df2 = new SimpleDateFormat("HH:mm:ss");
-//            String formattedDate = df.format(c.getTime());
-//            String formattedDate2 = df2.format(c.getTime());
-            String formattedDate = date;
-            String formattedDate2 = time;
+            String formattedDate = df.format(c.getTime());
+            String formattedDate2 = df2.format(c.getTime());
 
             class SaveTask extends AsyncTask<Void, Void, Void> {
 
@@ -409,56 +418,53 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
 
                     VisitedPlaceTable visitedPlaceTable = new VisitedPlaceTable();
                     visitedPlaceTable.setName(id_titles);
-                    visitedPlaceTable.setHolidayID(holiday);
+                    visitedPlaceTable.setHolidayID(place);
                     visitedPlaceTable.setLatitude(latitude);
                     visitedPlaceTable.setLongitude(longitude);
-                    visitedPlaceTable.setText(id_msgs);
-                    visitedPlaceTable.setId(place);
                     visitedPlaceTable.setVisitDate(formattedDate);
                     visitedPlaceTable.setVisitTime(formattedDate2);
 
 
-                    DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                    long vid = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                             .visitedPlaceDao()
-                            .update(visitedPlaceTable);
-                    int vid2 = ((int) place);
-
-                    if (images != null) {
-                        for (int i = 0; i < images.size(); i++) {
-                            System.out.println(images.get(i));
-                            Log.e(TAG, "doInBackground: " + images.get(i).getPath());
-
-                            Uri imageUri = Uri.parse(images.get(i).getPath());
-                            Bitmap bitmap = null;
-                            try {
-                                String fileSuffix = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                            .insert(visitedPlaceTable);
+                    int vid2 = ((int) vid);
 
 
-                                File source1 = new File(images.get(i).getPath());
-                                Log.e(TAG, "doInBackground: Path :" + images.get(i).getPath());
-                                File destination1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + fileSuffix + images.get(i).getName());
-                                copy(source1, destination1);
+                    for (int i = 0; i < images.size(); i++) {
+                        System.out.println(images.get(i));
+                        Log.e(TAG, "doInBackground: " + images.get(i).getPath());
 
-                                PhotoTable photoTable = new PhotoTable();
-                                photoTable.setHolidayID(holiday);
-                                photoTable.setPhotoName(fileSuffix + images.get(i).getName());
-                                photoTable.setPlaceID(vid2);
+                        Uri imageUri = Uri.parse(images.get(i).getPath());
+                        Bitmap bitmap = null;
+                        try {
+                            String fileSuffix = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
 
 
-                                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                                        .photoDao()
-                                        .insert(photoTable);
-                                Log.e(TAG, "doInBackground: photos" + i);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                            File source1 = new File(images.get(i).getPath());
+                            Log.e(TAG, "doInBackground: Path :" + images.get(i).getPath());
+                            File destination1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + fileSuffix + images.get(i).getName());
+                            copy(source1, destination1);
+
+                            PhotoTable photoTable = new PhotoTable();
+                            photoTable.setHolidayID(place);
+                            photoTable.setPhotoName(fileSuffix + images.get(i).getName());
+                            photoTable.setPlaceID(vid2);
+
+
+                            DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                                    .photoDao()
+                                    .insert(photoTable);
+                            Log.e(TAG, "doInBackground: photos" + i);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
-                    for (int i = 0; i < names2.size(); i++) {
+                    for (int i = 0; i < people1; i++) {
                         PeopleTable peopleTable = new PeopleTable();
-                        peopleTable.setHolidayID(holiday);
+                        peopleTable.setHolidayID(place);
                         peopleTable.setPlaceID(vid2);
-                        peopleTable.setPersonName(names2.get(i));
+                        peopleTable.setPersonName("none");
                         DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                                 .peopleDao()
                                 .insert(peopleTable);
@@ -561,16 +567,17 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
 
     }
 
+
     protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(EditEntry.this)
+        mGoogleApiClient = new GoogleApiClient.Builder(ViewPlaceActivity.this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        LocationManager locationManager = (LocationManager) EditEntry.this.getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager locationManager = (LocationManager) ViewPlaceActivity.this.getSystemService(Context.LOCATION_SERVICE);
                         Criteria criteria = new Criteria();
 
-                        if (EditEntry.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && EditEntry.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (ViewPlaceActivity.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ViewPlaceActivity.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    Activity#requestPermissions
                             // here to request the missing permissions, and then overriding
@@ -606,24 +613,24 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(EditEntry.this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(ViewPlaceActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(EditEntry.this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(ViewPlaceActivity.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(EditEntry.this)
+                new AlertDialog.Builder(ViewPlaceActivity.this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission, please accept to use location functionality")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(EditEntry.this,
+                                ActivityCompat.requestPermissions(ViewPlaceActivity.this,
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                                         MY_PERMISSIONS_REQUEST_LOCATION);
                             }
@@ -634,7 +641,7 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
 
             } else {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(EditEntry.this,
+                ActivityCompat.requestPermissions(ViewPlaceActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
@@ -652,7 +659,7 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
 
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(EditEntry.this,
+                    if (ContextCompat.checkSelfPermission(ViewPlaceActivity.this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
 
@@ -667,7 +674,7 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(EditEntry.this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(ViewPlaceActivity.this, "permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -712,19 +719,41 @@ public class EditEntry extends AppCompatActivity implements OnMapReadyCallback,
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapLongClick(LatLng latLng) {
 
     }
 
     @Override
-    public void onMapLongClick(LatLng latLng) {
-        googleMap.addMarker(new MarkerOptions()
-                .position(latLng)
-                .title(latLng.toString())
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+    public void onMapReady(GoogleMap googleMap) {
 
-        Toast.makeText(EditEntry.this,
-                "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
-                .show();
+    }
+
+    public void addPlace(View v) {
+        Intent intent = new Intent(this, CreateEntryActivity.class);
+        intent.putExtra("holiday", holiday);
+        startActivity(intent);
+    }
+
+    public void share(View v) {
+        //TODO share the content
+
+        SendFile sendFile = new SendFile();
+        sendFile.sendMyFile(ViewPlaceActivity.this, photoTables2);
+       /* Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_SEND_MULTIPLE);
+        intent.putExtra(Intent.EXTRA_SUBJECT, "Here are some files.");
+        intent.setType("image/jpeg"); *//* This example is sharing jpeg images. *//*
+
+        ArrayList<Uri> files = new ArrayList<Uri>();
+        for (int i = 0; i < photoTables2.size(); i++) {
+            Log.e(TAG, "doInBackground: " + photoTables2.get(i).getPhotoName());
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + photoTables2.get(i).getPhotoName());
+            Uri uri = Uri.fromFile(file);
+            files.add(uri);
+        }
+
+
+        intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
+        startActivity(intent);*/
     }
 }

@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -19,18 +20,19 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.adapters.EventAdapter;
 import com.trichain.omiinad.adapters.EventAdapter2;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
 public class HolidayDetailActivity extends AppCompatActivity {
 
     private Menu menu;
-    int holidayid;
+    private int holidayid;
     private static String TAG = "HolidayDetailActivity";
+    private RelativeLayout rlNoPlaces;
+    private ImageView imgNoPlaces;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,19 +43,12 @@ public class HolidayDetailActivity extends AppCompatActivity {
         holidayid = getIntent().getIntExtra("holiday", 0);
         Log.e(TAG, "onCreate: " + holidayid);
 
+        rlNoPlaces = findViewById(R.id.rlNoPlaces);
+        imgNoPlaces = findViewById(R.id.imgNoPlaces);
         setImage(holidayid);
 
-
         getPlaces(holidayid);
-//        RecyclerView recyclerView = findViewById(R.id.eventsrec);
-//        recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
-//        List<VisitedPlaceTable> aa = new List<VisitedPlaceTable>(List);
-//        aa.add("data 1");
-//        aa.add("data 11");
-//        aa.add("data 111");
-//        aa.add("data 1111");
-//        EventAdapter holidayAdapter = new EventAdapter(aa, HolidayDetailActivity.this);
-//        recyclerView.setAdapter(holidayAdapter);
+
         final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,15 +57,9 @@ public class HolidayDetailActivity extends AppCompatActivity {
                         .setAction("Yes", new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent bundle = new Intent(HolidayDetailActivity.this,CreateEntry.class);
-                                bundle.putExtra("holiday",holidayid);
+                                Intent bundle = new Intent(HolidayDetailActivity.this, CreateEntryActivity.class);
+                                bundle.putExtra("holiday", holidayid);
                                 startActivity(bundle);
-//                                FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//                                CreateEntryFragment createEntryFragment = new CreateEntryFragment();
-//                                createEntryFragment.setArguments(bundle);
-//                                ft.replace(R.id.add_place_fragment, createEntryFragment);
-//                                ft.commit();
-//                                fab.setVisibility(View.GONE);
                             }
                         }).show();
             }
@@ -116,14 +105,11 @@ public class HolidayDetailActivity extends AppCompatActivity {
             @Override
             protected void onPostExecute(String holidayphotoCount) {
                 super.onPostExecute(holidayphotoCount);
-
-//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
-//                recyclerView.setAdapter(adapter);
-
-                ImageView view=findViewById(R.id.expandedImage);
+                ImageView view = findViewById(R.id.expandedImage);
                 Glide.with(HolidayDetailActivity.this)
-                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+holidayphotoCount)
-                        .fallback(R.drawable.japan)
+                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
+                        .fallback(R.drawable.ic_landscape)
+                        .placeholder(R.drawable.ic_landscape)
                         .into(view);
             }
         }
@@ -149,19 +135,33 @@ public class HolidayDetailActivity extends AppCompatActivity {
             protected void onPostExecute(List<VisitedPlaceTable> visitedPlaceTables) {
                 super.onPostExecute(visitedPlaceTables);
 
-//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
-//                recyclerView.setAdapter(adapter);
-
-
                 RecyclerView recyclerView = findViewById(R.id.eventsrec);
                 recyclerView.setLayoutManager(new LinearLayoutManager(HolidayDetailActivity.this));
                 EventAdapter2 eventAdapter = new EventAdapter2(visitedPlaceTables, HolidayDetailActivity.this);
                 recyclerView.setAdapter(eventAdapter);
+
+                if (visitedPlaceTables.size() == 0) {
+                    showNoHolidaysLayout();
+                } else {
+                    hideNoHolidaysLayout();
+                }
+
             }
         }
 
         GetHolidays gh = new GetHolidays();
         gh.execute();
+    }
+
+    private void showNoHolidaysLayout() {
+        rlNoPlaces.setVisibility(View.VISIBLE);
+        imgNoPlaces.setOnClickListener(v ->
+                startActivity(new Intent(HolidayDetailActivity.this, CreateEntryActivity.class))
+        );
+    }
+
+    private void hideNoHolidaysLayout() {
+        rlNoPlaces.setVisibility(View.GONE);
     }
 
     private void hideOption(int id) {

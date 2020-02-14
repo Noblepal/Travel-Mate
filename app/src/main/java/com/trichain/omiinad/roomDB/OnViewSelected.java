@@ -1,4 +1,4 @@
-package com.trichain.omiinad.RoomDB;
+package com.trichain.omiinad.roomDB;
 
 public interface OnViewSelected {
     public void onViewSelected(String start,String stop);

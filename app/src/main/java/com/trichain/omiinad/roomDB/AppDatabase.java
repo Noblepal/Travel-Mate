@@ -1,12 +1,12 @@
-package com.trichain.omiinad.RoomDB;
+package com.trichain.omiinad.roomDB;
 
 import androidx.room.Database;
 import androidx.room.RoomDatabase;
 
-import com.trichain.omiinad.Entities.HolidayTable;
-import com.trichain.omiinad.Entities.PeopleTable;
-import com.trichain.omiinad.Entities.PhotoTable;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
+import com.trichain.omiinad.entities.HolidayTable;
+import com.trichain.omiinad.entities.PeopleTable;
+import com.trichain.omiinad.entities.PhotoTable;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
 
 @Database(entities = {HolidayTable.class, PeopleTable.class, PhotoTable.class, VisitedPlaceTable.class}, version = 3)
 public abstract class AppDatabase extends RoomDatabase {

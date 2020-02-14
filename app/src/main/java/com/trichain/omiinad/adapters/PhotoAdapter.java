@@ -2,7 +2,6 @@ package com.trichain.omiinad.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
 import android.view.LayoutInflater;
@@ -15,11 +14,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.Entities.PhotoTable;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
+import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.ViewPlace;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 

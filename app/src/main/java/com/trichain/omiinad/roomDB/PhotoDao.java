@@ -1,4 +1,4 @@
-package com.trichain.omiinad.RoomDB;
+package com.trichain.omiinad.roomDB;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -6,7 +6,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-import com.trichain.omiinad.Entities.PhotoTable;
+import com.trichain.omiinad.entities.PhotoTable;
 
 import java.util.List;
 

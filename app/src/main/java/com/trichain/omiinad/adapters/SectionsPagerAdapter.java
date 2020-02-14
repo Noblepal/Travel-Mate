@@ -1,4 +1,4 @@
-package com.trichain.omiinad.ui.main;
+package com.trichain.omiinad.adapters;
 
 import android.content.Context;
 
@@ -36,7 +36,6 @@ public class SectionsPagerAdapter extends FragmentPagerAdapter {
             default:return null;
         }
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
 
     }
 

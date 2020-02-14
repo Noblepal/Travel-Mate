@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/one_place"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="8dp"
-    android:id="@+id/one_place"
+    android:background="@drawable/holiday_item_bg"
     android:orientation="horizontal"
     android:weightSum="2">
 
@@ -80,12 +81,19 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imageNews"
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="132dp"
-        android:layout_height="120dp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerCrop"
-        android:src="@drawable/japan" />
+        android:layout_height="match_parent"
+        app:cardPreventCornerOverlap="false">
+
+        <ImageView
+            android:id="@+id/imageNews"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:scaleType="centerCrop"
+            android:src="@drawable/japan" />
+
+    </com.google.android.material.card.MaterialCardView>
 
 </LinearLayout>

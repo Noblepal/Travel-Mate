@@ -13,7 +13,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -39,12 +40,10 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.github.bumptech.glide:glide:4.11.0'
-    //Room components
-    //implementation "androidx.room:room-runtime:2.2.1"
-    //annotationProcessor "androidx.room:room-compiler:2.2.1"
-    //androidTestImplementation "androidx.room:room-testing:2.2.1"
+
     //Lifecycle components
     implementation "androidx.lifecycle:lifecycle-extensions:2.2.0"
+
     //noinspection LifecycleAnnotationProcessorWithJava8
     annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.2.0"
     implementation 'com.squareup.retrofit2:retrofit:2.6.1'
@@ -65,15 +64,11 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:2.2.0'
 
     //imagepicker
-
     implementation 'com.github.esafirm.android-image-picker:imagepicker:2.2.0'
+
     // for experimental rx picker
     implementation 'com.github.esafirm.android-image-picker:rximagepicker:2.2.0'
 
-    //carousale
+    //carousel
     implementation 'com.synnapps:carouselview:0.1.5'
-
-
-
-
 }

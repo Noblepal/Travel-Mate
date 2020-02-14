@@ -1,10 +1,10 @@
-package com.trichain.omiinad.RoomDB;
+package com.trichain.omiinad.roomDB;
 
 import android.content.Context;
 
 import androidx.room.Room;
 
-import static com.trichain.omiinad.constants.constant.dbName;
+import static com.trichain.omiinad.constants.Constant.dbName;
 
 public class DatabaseClient {
 

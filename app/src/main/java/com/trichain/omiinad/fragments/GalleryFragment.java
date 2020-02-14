@@ -12,11 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.trichain.omiinad.Entities.PhotoTable;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
+import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.adapters.EventAdapter;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.PhotoAdapter;
 
 import java.util.List;

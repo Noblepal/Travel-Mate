@@ -1,4 +1,4 @@
-package com.trichain.omiinad.RoomDB;
+package com.trichain.omiinad.roomDB;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -7,7 +7,7 @@ import androidx.room.Query;
 import androidx.room.Update;
 
 
-import com.trichain.omiinad.Entities.HolidayTable;
+import com.trichain.omiinad.entities.HolidayTable;
 
 import java.util.List;
 

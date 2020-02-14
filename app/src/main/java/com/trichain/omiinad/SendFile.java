@@ -5,17 +5,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StrictMode;
-import android.util.Log;
 
 import androidx.core.content.FileProvider;
 
-import com.trichain.omiinad.Entities.PhotoTable;
+import com.trichain.omiinad.entities.PhotoTable;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class sendFile extends FileProvider {
+public class SendFile extends FileProvider {
     public void sendMyFile(Context context, List<PhotoTable> photoTables2){
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());

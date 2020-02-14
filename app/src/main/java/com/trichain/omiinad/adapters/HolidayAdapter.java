@@ -5,37 +5,30 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Environment;
-import android.speech.tts.Voice;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.Entities.HolidayTable;
+import com.google.android.material.card.MaterialCardView;
 import com.trichain.omiinad.HolidayDetailActivity;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
+import com.trichain.omiinad.entities.HolidayTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+
+import static com.trichain.omiinad.Utils.formatDate;
 
 public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayViewHolder> {
 
-    List<HolidayTable> holidayList;
-    Context context;
+    private List<HolidayTable> holidayList;
+    private Context context;
 
     public HolidayAdapter(List<HolidayTable> holidayList, Context context) {
         this.holidayList = holidayList;
@@ -51,20 +44,20 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
 
     @Override
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
-        final HolidayTable h= holidayList.get(position);
-        String date=formatdate(h.getStartDate())+" - "+formatdate(h.getEndDate());
-//        String date=h.getStartDate()+"-"+h.getEndDate();
+        final HolidayTable h = holidayList.get(position);
+        String date = formatDate(h.getStartDate()) + " - " + formatDate(h.getEndDate());
         holder.tvName.setText(h.getName());
         holder.tv_holiday_date.setText(date);
+
         //TODO set the count
-        photoCount(h.getId(),context,holder.holiday_image_count);
-//        holder.holiday_image_count.setText(photoCount(h.getId(),context));
-        setImage(h.getId(),holder.imageView);
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
+        photoCount(h.getId(), context, holder.holiday_image_count);
+        //holder.holiday_image_count.setText(photoCount(h.getId(),context));
+        setImage(h.getId(), holder.imageView);
+        holder.mcvHoliday.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, HolidayDetailActivity.class);
-                intent.putExtra("holiday",h.getId());
+                intent.putExtra("holiday", h.getId());
                 context.startActivity(intent);
             }
         });
@@ -75,67 +68,52 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
         return holidayList.size();
     }
 
-    class HolidayViewHolder extends RecyclerView.ViewHolder{
-        TextView tvName,tv_holiday_date,holiday_image_count;
+    class HolidayViewHolder extends RecyclerView.ViewHolder {
+        TextView tvName, tv_holiday_date, holiday_image_count;
         ImageView imageView;
-        public HolidayViewHolder(@NonNull View itemView) {
+        MaterialCardView mcvHoliday;
+
+        HolidayViewHolder(@NonNull View itemView) {
             super(itemView);
 
             tv_holiday_date = itemView.findViewById(R.id.tv_holiday_date);
             holiday_image_count = itemView.findViewById(R.id.holiday_image_count);
             tvName = itemView.findViewById(R.id.tv_holiday_name);
-            imageView=itemView.findViewById(R.id.holiday_item_image);
+            imageView = itemView.findViewById(R.id.holiday_item_image);
+            mcvHoliday = itemView.findViewById(R.id.mcvHoliday);
         }
     }
-    public String formatdate(String a){
-        DateTimeFormatter formatter = null;
-        String formattedString="";
-        String[] job= a.split(" ");
-        formattedString=job[5]+" "+job[1]+" "+job[2];
-        /*if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd");
-            formatter = formatter.withLocale( Locale.US );  // Locale specifies human language for translating, and cultural norms for lowercase/uppercase and abbreviations and such. Example: Locale.US or Locale.CANADA_FRENCH
-            LocalDate date = LocalDate.parse(a, formatter);
-            formatter = DateTimeFormatter.ofPattern("dd LLLL yyyy");
-            formattedString = date.format(formatter);
-        }*/
-        return formattedString;
-    }
 
-    private void setImage(final int holidayid,ImageView imageView) {
+
+    private void setImage(final int holidayid, ImageView imageView) {
         class GetHolidays extends AsyncTask<Void, Void, String> {
 
             @Override
             protected String doInBackground(Void... voids) {
-
-                final String holidayphotoCount = DatabaseClient
+                return DatabaseClient
                         .getInstance(context)
                         .getAppDatabase()
                         .photoDao()
                         .getLatestHolydayphotos(holidayid);
-
-                return holidayphotoCount;
             }
 
             @Override
             protected void onPostExecute(String holidayphotoCount) {
                 super.onPostExecute(holidayphotoCount);
 
-//                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
-//                recyclerView.setAdapter(adapter);
-
-                ImageView view=imageView;
                 Glide.with(context)
-                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/"+holidayphotoCount)
-                        .fallback(R.drawable.japan)
-                        .into(view);
+                        .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
+                        .fallback(R.drawable.ic_landscape)
+                        .placeholder(R.drawable.ic_landscape)
+                        .into(imageView);
             }
         }
 
         GetHolidays gh = new GetHolidays();
         gh.execute();
     }
-    public void photoCount(final int a, final Context context, final TextView view){
+
+    public void photoCount(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, Void> {
 
             @Override
@@ -148,7 +126,7 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
                         .getAppDatabase()
                         .photoDao()
                         .getNumberofHolidayphotos(a);
-                ((Activity)context).runOnUiThread(new Runnable() {
+                ((Activity) context).runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         //change View Data

@@ -1,12 +1,10 @@
-package com.trichain.omiinad.Entities;
+package com.trichain.omiinad.entities;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 public class VisitedPlaceTable implements Serializable {

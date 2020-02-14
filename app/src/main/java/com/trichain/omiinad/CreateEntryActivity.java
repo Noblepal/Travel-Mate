@@ -1,21 +1,11 @@
 package com.trichain.omiinad;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Criteria;
 import android.location.Location;
@@ -26,19 +16,24 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.features.ReturnMode;
-import com.esafirm.imagepicker.model.Image;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -54,20 +49,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.textfield.TextInputEditText;
-import com.trichain.omiinad.Entities.HolidayTable;
-import com.trichain.omiinad.Entities.PeopleTable;
-import com.trichain.omiinad.Entities.PhotoTable;
-import com.trichain.omiinad.Entities.VisitedPlaceTable;
-import com.trichain.omiinad.RoomDB.DatabaseClient;
-import com.trichain.omiinad.fragments.HomeFragment;
+import com.trichain.omiinad.entities.PeopleTable;
+import com.trichain.omiinad.entities.PhotoTable;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -75,14 +65,14 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static androidx.core.provider.FontsContractCompat.FontRequestCallback.RESULT_OK;
+import static com.trichain.omiinad.Utils.setGoogleMapStyle;
 
-public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback,
+public class CreateEntryActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GoogleMap.OnMapLongClickListener {
 
-    public static String TAG = "CreateEntry";
+    public static String TAG = "CreateEntryActivity";
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 111;
     View root;
     Double longitude, latitude;
@@ -111,13 +101,13 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
         ((View) findViewById(R.id.back_btn2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CreateEntry.super.onBackPressed();
+                CreateEntryActivity.super.onBackPressed();
             }
         });
         ((ImageButton) findViewById(R.id.img_add_photo)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImagePicker.create(CreateEntry.this)
+                ImagePicker.create(CreateEntryActivity.this)
                         .returnMode(ReturnMode.CAMERA_ONLY)
                         .folderMode(true) // folder mode (false by default)
                         .toolbarFolderTitle("Folder") // folder selection title
@@ -133,13 +123,13 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
         ((ImageButton) findViewById(R.id.img_add_members)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(CreateEntry.this);
-                builder.setTitle("Enter the persons name");
+                AlertDialog.Builder builder = new AlertDialog.Builder(CreateEntryActivity.this);
+                builder.setTitle("Enter number of people");
 
                 // Set up the input
-                final EditText input = new EditText(CreateEntry.this);
+                final EditText input = new EditText(CreateEntryActivity.this);
                 // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT );
+                input.setInputType(InputType.TYPE_CLASS_NUMBER);
                 builder.setView(input);
 
                 // Set up the buttons
@@ -148,7 +138,8 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
                     public void onClick(DialogInterface dialog, int which) {
                         name.add(input.getText().toString());
                         name2.add(input.getText().toString());
-                        people1 = name.size();
+                        if (Integer.parseInt(input.getText().toString()) > 0)
+                            people1 = Integer.parseInt(input.getText().toString());
                         ((TextView) findViewById(R.id.people)).setText(String.valueOf(people1));
                     }
                 });
@@ -214,7 +205,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
         mMapView.onResume(); // needed to get the map to display immediately
 
         try {
-            MapsInitializer.initialize(CreateEntry.this.getApplicationContext());
+            MapsInitializer.initialize(CreateEntryActivity.this.getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -222,6 +213,8 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
+
+                setGoogleMapStyle(CreateEntryActivity.this, googleMap);
 
                 // For showing a move to my location button
 //                googleMap.setMyLocationEnabled(true);
@@ -235,7 +228,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
                 googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
                 //Initialize Google Play Services
                 if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(CreateEntry.this,
+                    if (ContextCompat.checkSelfPermission(CreateEntryActivity.this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
                         //Location Permission already granted
@@ -267,7 +260,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public void trySave(View v) {
-        TextView img_add_photo_no, id_date, id_day, tv_time1, people;
+        TextView img_add_photo_no, id_date, id_day, tv_time1, people, peopleErrorMessage;
 
         TextInputEditText id_title, id_msg;
         img_add_photo_no = findViewById(R.id.img_add_photo_no);
@@ -277,6 +270,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
         id_title = findViewById(R.id.id_title);
         id_msg = findViewById(R.id.id_msg);
         people = findViewById(R.id.people);
+        peopleErrorMessage = findViewById(R.id.peopleErrorMessage);
 
         if (img_add_photo_no.getText().toString().contentEquals("0")) {
             Toast.makeText(this, "Kindly add some photos", Toast.LENGTH_SHORT).show();
@@ -288,10 +282,11 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
         } else if (people1 == 0) {
+            peopleErrorMessage.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Select Number of people", Toast.LENGTH_SHORT).show();
 
         } else {
-
+            peopleErrorMessage.setVisibility(View.GONE);
             String id_dates = id_date.getText().toString();
             String id_days = id_day.getText().toString();
             String tv_time1s = tv_time1.getText().toString();
@@ -465,15 +460,15 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
     }
 
     protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(CreateEntry.this)
+        mGoogleApiClient = new GoogleApiClient.Builder(CreateEntryActivity.this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        LocationManager locationManager = (LocationManager) CreateEntry.this.getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager locationManager = (LocationManager) CreateEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
                         Criteria criteria = new Criteria();
 
-                        if (CreateEntry.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && CreateEntry.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (CreateEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && CreateEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    Activity#requestPermissions
                             // here to request the missing permissions, and then overriding
@@ -509,24 +504,24 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(CreateEntry.this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(CreateEntryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(CreateEntry.this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(CreateEntryActivity.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(CreateEntry.this)
+                new AlertDialog.Builder(CreateEntryActivity.this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission, please accept to use location functionality")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(CreateEntry.this,
+                                ActivityCompat.requestPermissions(CreateEntryActivity.this,
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                                         MY_PERMISSIONS_REQUEST_LOCATION);
                             }
@@ -537,7 +532,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
 
             } else {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(CreateEntry.this,
+                ActivityCompat.requestPermissions(CreateEntryActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
@@ -555,7 +550,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
 
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(CreateEntry.this,
+                    if (ContextCompat.checkSelfPermission(CreateEntryActivity.this,
                             Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
 
@@ -570,7 +565,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
 
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(CreateEntry.this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(CreateEntryActivity.this, "permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -634,7 +629,7 @@ public class CreateEntry extends AppCompatActivity implements OnMapReadyCallback
                 .title(latLng.toString())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-        Toast.makeText(CreateEntry.this,
+        Toast.makeText(CreateEntryActivity.this,
                 "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
                 .show();
     }
