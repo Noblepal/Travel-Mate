@@ -23,6 +23,7 @@ import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.trichain.omiinad.Utils.formatDate;
 
 public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayViewHolder> {
@@ -105,6 +106,7 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
                         .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
                         .fallback(R.drawable.ic_landscape)
                         .placeholder(R.drawable.ic_landscape)
+                        .transition(withCrossFade(500))
                         .into(imageView);
             }
         }

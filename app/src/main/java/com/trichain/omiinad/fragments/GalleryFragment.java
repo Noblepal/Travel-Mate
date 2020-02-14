@@ -3,19 +3,18 @@ package com.trichain.omiinad.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.trichain.omiinad.entities.PhotoTable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.roomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.PhotoAdapter;
+import com.trichain.omiinad.entities.PhotoTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class GalleryFragment extends Fragment {
             protected void onPostExecute(List<PhotoTable> photoTables) {
                 super.onPostExecute(photoTables);
                 RecyclerView recyclerView = root.findViewById(R.id.eventsrec);
-                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
                 PhotoAdapter photoAdapter = new PhotoAdapter(photoTables, getActivity());
                 recyclerView.setAdapter(photoAdapter);
             }
@@ -64,7 +63,6 @@ public class GalleryFragment extends Fragment {
 
         return root;
     }
-
 
 
 }

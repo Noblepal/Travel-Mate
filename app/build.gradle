@@ -69,6 +69,9 @@ dependencies {
     // for experimental rx picker
     implementation 'com.github.esafirm.android-image-picker:rximagepicker:2.2.0'
 
+    //Palette
+    implementation 'androidx.palette:palette:1.0.0'
+
     //carousel
     implementation 'com.synnapps:carouselview:0.1.5'
 }
