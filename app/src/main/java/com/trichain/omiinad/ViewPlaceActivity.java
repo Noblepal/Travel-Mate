@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,8 +17,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +35,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.google.android.gms.common.ConnectionResult;
@@ -88,6 +94,8 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     CarouselView carouselView;
     List<PhotoTable> photoTables2;
     String people = "";
+    private WindowManager windowManager;
+    private RelativeLayout rl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -346,6 +354,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                 carouselView = (CarouselView) findViewById(R.id.carouselView);
                 carouselView.setImageListener(imageListener);
                 carouselView.setPageCount(photoTables.size());//sampleImages.length
+                //carouselView.setOnClickListener(v -> showCarouselInFullScreen());
 
 
                 for (int i = 0; i < photoTables.size(); i++) {
@@ -358,6 +367,52 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         gh.execute();
     }
 
+    public void showCarouselInFullScreen(View v) {
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+
+                PixelFormat.OPAQUE);
+        params.windowAnimations = R.style.WindowAnimation;
+
+        windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        rl = (RelativeLayout) inflater.inflate(R.layout.full_screen_carousel, null);
+        ImageButton ib2_close = rl.findViewById(R.id.ib2_close);
+
+
+        CarouselView cV = rl.findViewById(R.id.carouselView2);
+        cV.setImageListener(imageListener);
+        cV.setPageCount(photoTables2.size());
+        cV.setCurrentItem(carouselView.getCurrentItem());
+
+        windowManager.addView(rl, params);
+        ib2_close.setOnClickListener(v3 -> windowManager.removeView(rl));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        try {
+            windowManager.removeView(rl);
+        } catch (Exception e) {
+            Log.i(TAG, "onBackPressed: view already removed");
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        try {
+            windowManager.removeView(rl);
+        } catch (Exception e) {
+            Log.i(TAG, "onBackPressed: view already removed");
+        }
+    }
+
     ImageListener imageListener = new ImageListener() {
         @Override
         public void setImageForPosition(int position, ImageView imageView) {
@@ -366,6 +421,8 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
             Glide.with(ViewPlaceActivity.this)
                     .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
                     .fallback(R.drawable.japan)
+                    .placeholder(R.drawable.ic_landscape)
+                    .transition(DrawableTransitionOptions.withCrossFade(500))
                     .into(imageView);
         }
     };
@@ -587,10 +644,14 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                             // for Activity#requestPermissions for more details.
                             return;
                         } else {
-                            Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                            Log.e(TAG, "onConnected: " + latitude);
+                            try {
+                                Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                                latitude = location.getLatitude();
+                                longitude = location.getLongitude();
+                                Log.e(TAG, "onConnected: " + latitude);
+                            } catch (NullPointerException e) {
+                                Toast.makeText(ViewPlaceActivity.this, "Location not found", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     }
 

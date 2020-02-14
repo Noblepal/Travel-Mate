@@ -2,41 +2,66 @@ package com.trichain.omiinad.fragments;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
-import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.roomDB.DatabaseClient;
 import com.trichain.omiinad.adapters.EventAdapter;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
 public class SearchFragment extends Fragment {
     View root;
     String TAG = "SearchFragment";
+    ProgressBar searchProgressBar;
+    TextView tvNoItems;
+    List<VisitedPlaceTable> visitedPlaceTables;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         root = inflater.inflate(R.layout.fragment_search, container, false);
-        ((ImageButton) root.findViewById(R.id.go)).setOnClickListener(new View.OnClickListener() {
+        tvNoItems = root.findViewById(R.id.tvNoItems);
+        EditText searchEditText = root.findViewById(R.id.id_msg);
+        searchProgressBar = root.findViewById(R.id.searchProgressBar);
+        searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onClick(View v) {
-                if (((com.google.android.material.textfield.TextInputEditText) root.findViewById(R.id.id_msg)).getText().toString().contentEquals("")) {
-                    Toast.makeText(getActivity(), "Input a word to search", Toast.LENGTH_SHORT).show();
-                } else {
-                    getPlaces(((com.google.android.material.textfield.TextInputEditText) root.findViewById(R.id.id_msg)).getText().toString());
-                }
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                String str = s.toString();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (str.length() > 3) {
+                            Log.i(TAG, "afterTextChanged: Searching for: " + str);
+                            getPlaces(str);
+                        }
+                    }
+                }, 500);
+
             }
         });
 
@@ -44,23 +69,28 @@ public class SearchFragment extends Fragment {
     }
 
     private void getPlaces(String s) {
+        showView(searchProgressBar);
         class GetHolidays extends AsyncTask<Void, Void, List<VisitedPlaceTable>> {
 
             @Override
             protected List<VisitedPlaceTable> doInBackground(Void... voids) {
-                List<VisitedPlaceTable> visitedPlaceTables = DatabaseClient
+                visitedPlaceTables = DatabaseClient
                         .getInstance(getActivity())
                         .getAppDatabase()
                         .visitedPlaceDao()
-                        .getSearchResultsofplace(s);
+                        .getSearchResultsOfPlace(s);
                 return visitedPlaceTables;
             }
 
             @Override
             protected void onPostExecute(List<VisitedPlaceTable> visitedPlaceTables) {
                 super.onPostExecute(visitedPlaceTables);
+                hideView(searchProgressBar);
                 if (visitedPlaceTables.size() == 0) {
-                    Snackbar.make(root, "No items found", BaseTransientBottomBar.LENGTH_LONG).show();
+                    showView(tvNoItems);
+                    //Snackbar.make(root, "No items found", Snackbar.LENGTH_LONG).show();
+                } else {
+                    hideView(tvNoItems);
                 }
                 RecyclerView recyclerView = root.findViewById(R.id.eventsrec);
                 recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -71,5 +101,14 @@ public class SearchFragment extends Fragment {
 
         GetHolidays gh = new GetHolidays();
         gh.execute();
+    }
+
+    private void hideView(View v) {
+        v.setVisibility(View.GONE);
+    }
+
+
+    private void showView(View v) {
+        v.setVisibility(View.VISIBLE);
     }
 }

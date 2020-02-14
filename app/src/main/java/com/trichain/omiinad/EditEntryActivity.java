@@ -95,7 +95,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_entry);
+        setContentView(R.layout.activity_create_entry);
         holiday = getIntent().getIntExtra("holiday", 0);
         place = getIntent().getIntExtra("place", 0);
         people1 = 0;

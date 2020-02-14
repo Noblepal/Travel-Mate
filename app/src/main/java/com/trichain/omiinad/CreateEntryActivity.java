@@ -87,7 +87,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
     GoogleApiClient mGoogleApiClient;
     Location mLastLocation;
     Marker mCurrLocationMarker;
-    int holiday, people1;
+    int holiday, people1, place;
     List<String> peopleNames = new ArrayList<>();
     ArrayList<String> name2 = new ArrayList<>();
     List<com.esafirm.imagepicker.model.Image> images;
@@ -100,7 +100,13 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_entry);
-        holiday = getIntent().getIntExtra("holiday", 0);
+
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            holiday = getIntent().getIntExtra("holiday", 0);
+            place = getIntent().getIntExtra("place", 0);
+        }
+
         Log.d(TAG, "onCreate: holiday -> " + holiday);
         people1 = 0;
         ((TextView) findViewById(R.id.id_date)).setText(getDateOnly());

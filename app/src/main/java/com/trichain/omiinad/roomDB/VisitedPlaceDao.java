@@ -22,8 +22,8 @@ public interface VisitedPlaceDao {
     @Query("SELECT * FROM VisitedPlaceTable WHERE 1")
     List<VisitedPlaceTable> getAllVisitedplacesAnywhere();
 
-    @Query("SELECT * FROM VisitedPlaceTable WHERE name LIKE :search OR text LIKE :search")
-    List<VisitedPlaceTable> getSearchResultsofplace(String search);
+    @Query("SELECT * FROM VisitedPlaceTable WHERE name LIKE :search or text LIKE :search")
+    List<VisitedPlaceTable> getSearchResultsOfPlace(String search);
 
     @Insert
     long insert(VisitedPlaceTable visitedPlaceTable);
