@@ -1,15 +1,10 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.utils;
 
-import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.util.Log;
-import android.widget.Toast;
-
-import static com.trichain.omiinad.CreateEntryActivity.TAG;
 
 
 public class ShakeClass implements SensorEventListener {

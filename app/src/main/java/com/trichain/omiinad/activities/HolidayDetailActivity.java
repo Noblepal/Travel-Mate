@@ -1,4 +1,4 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.activities;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -20,10 +20,10 @@ import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.EventAdapter;
-import com.trichain.omiinad.adapters.EventAdapter2;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 
 import java.util.List;
 

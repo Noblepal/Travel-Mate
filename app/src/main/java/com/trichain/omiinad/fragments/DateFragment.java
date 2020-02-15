@@ -17,8 +17,8 @@ import android.widget.Toast;
 import com.archit.calendardaterangepicker.customviews.DateRangeCalendarView;
 import com.google.android.material.snackbar.Snackbar;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.roomDB.CalendarListener;
-import com.trichain.omiinad.roomDB.OnViewSelected;
+import com.trichain.omiinad.room.CalendarListener;
+import com.trichain.omiinad.room.OnViewSelected;
 
 import java.util.Calendar;
 

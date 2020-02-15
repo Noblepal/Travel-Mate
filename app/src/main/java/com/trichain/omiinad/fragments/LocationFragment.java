@@ -39,8 +39,8 @@ import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.android.material.button.MaterialButton;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.roomDB.CalendarListener;
-import com.trichain.omiinad.roomDB.OnViewSelected;
+import com.trichain.omiinad.room.CalendarListener;
+import com.trichain.omiinad.room.OnViewSelected;
 
 import java.util.Arrays;
 

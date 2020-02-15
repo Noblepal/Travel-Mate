@@ -18,9 +18,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ViewPlaceActivity" />
-        <activity android:name=".CreateEntryActivity" />
-        <activity android:name=".EditEntryActivity" />
+        <activity android:name=".activities.ViewPlaceActivity" />
+        <activity android:name=".activities.CreateEntryActivity" />
+        <activity android:name=".activities.EditEntryActivity" />
 
 
         <meta-data
@@ -28,13 +28,13 @@
             android:value="AIzaSyDdig6ikr7xv7N3IE0v4rmvNiQpdNJwlc0" />
 
         <activity
-            android:name=".HolidayDetailActivity"
+            android:name=".activities.HolidayDetailActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name=".AddHolidayActivity"
+            android:name=".activities.AddHolidayActivity"
             android:theme="@style/AppTheme" />
         <activity
-            android:name=".HomeActivity"
+            android:name=".activities.HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,7 +42,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".activities.MainActivity" />
     </application>
 
 </manifest>

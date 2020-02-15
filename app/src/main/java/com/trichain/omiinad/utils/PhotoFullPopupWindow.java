@@ -1,4 +1,4 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -22,6 +22,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.trichain.omiinad.R;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade;

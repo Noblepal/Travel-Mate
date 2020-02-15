@@ -14,10 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.PhotoFullPopupWindow;
+import com.trichain.omiinad.utils.PhotoFullPopupWindow;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.PhotoTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 
 import java.util.List;
 

@@ -21,7 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.EventAdapter;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 
 import java.util.List;
 
