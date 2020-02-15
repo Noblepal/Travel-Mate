@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/black_overlay">
 
-    <ImageView
+    <com.synnapps.carouselview.CarouselView
         android:id="@+id/carouselView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

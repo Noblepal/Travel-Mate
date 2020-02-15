@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -18,7 +17,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -86,23 +84,23 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
 
     public static String TAG = "CreateEntryActivity";
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 111;
-    View root;
-    Double longitude, latitude;
-    MapView mMapView;
+    private View root;
+    private Double longitude, latitude;
+    private MapView mMapView;
     private GoogleMap googleMap;
-    LocationRequest mLocationRequest;
-    GoogleApiClient mGoogleApiClient;
-    Location mLastLocation;
-    Marker mCurrLocationMarker;
-    int place, people1, holiday;
-    List<Image> images;
-    int strtext;
-    CarouselView carouselView;
-    List<PhotoTable> photoTables2;
-    String people = "";
+    private LocationRequest mLocationRequest;
+    private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
+    private Marker mCurrLocationMarker;
+    private int place, people1, holiday;
+    private List<Image> images;
+    private int strtext;
+    private CarouselView carouselView;
+    private List<PhotoTable> photoTables2;
+    private String people = "";
     private WindowManager windowManager;
     private RelativeLayout rl;
-    ShakeDetector shakeDetector;
+    private ShakeDetector shakeDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +109,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         place = getIntent().getIntExtra("place_id", 0);
         people1 = 0;
 
-        //sensors
+        //Shake listener
         ShakeOptions options = new ShakeOptions()
                 .background(true)
                 .interval(1000)
@@ -125,88 +123,15 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                 Intent intent = new Intent(Intent.ACTION_MAIN);
                 intent.addCategory(Intent.CATEGORY_HOME);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
+                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me", true)) {
                     startActivity(intent);
                 }
             }
         });
-        //sesor
-        //carosel
+
+        /*Load images from external storage*/
         getImages();
-//        ((ImageButton) findViewById(R.id.img_add_photo)).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ImagePicker.create(ViewPlaceActivity.this)
-//                        .returnMode(ReturnMode.CAMERA_ONLY)
-//                        .folderMode(true) // folder mode (false by default)
-//                        .toolbarFolderTitle("Folder") // folder selection title
-//                        .toolbarImageTitle("Tap to select") // image selection title
-//                        .toolbarArrowColor(Color.BLACK) // Toolbar 'up' arrow color
-//                        .multi() // multi mode (default mode)
-//                        .limit(5) // max images can be selected (99 by default)
-//                        .enableLog(true) // disabling log
-//                        .start(); // start image picker activity with request code
-//
-//            }
-//        });
-//        ((ImageButton) findViewById(R.id.img_add_members)).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ImageButton ok_now=findViewById(R.id.ok_now);
-//                final NumberPicker numberPicker = (NumberPicker) findViewById(R.id.dialog_number_picker);
-//                numberPicker.setMaxValue(50);
-//                numberPicker.setMinValue(1);
-//                numberPicker.setWrapSelectorWheel(false);
-//                numberPicker.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-//                    @Override
-//                    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-//                        people1=newVal;
-//                        ((TextView)findViewById(R.id.people)).setText(String.valueOf(people1));
-//                    }
-//
-//                });
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                    numberPicker.setOnContextClickListener(new View.OnContextClickListener() {
-//                        @Override
-//                        public boolean onContextClick(View v) {
-//                            Log.d(TAG, "onContextClick: ");
-//                            numberPicker.setVisibility(View.GONE);
-//                            return false;
-//                        }
-//                    });
-//                }
-//                numberPicker.setVisibility(View.VISIBLE);
-//                ok_now.setVisibility(View.VISIBLE);
-//                ok_now.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View v) {
-//                        numberPicker.setVisibility(View.GONE);
-//                        ok_now.setVisibility(View.GONE);
-//                    }
-//                });
-//                View vva= numberPicker;
-//                vva.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//                    @Override
-//                    public void onFocusChange(View v, boolean hasFocus) {
-//                        if (!hasFocus){
-//                            numberPicker.clearFocus();
-//                            v.setVisibility(View.GONE);
-//                            ok_now.setVisibility(View.GONE);
-//                        }
-//                        Log.e(TAG, "onFocusChange: "+hasFocus );
-//                    }
-//                });
-//
-//            }
-//        });
-//
-//
-//        findViewById(R.id.img_change_location).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                startEditing();
-//            }
-//        });
+
         //Map
         mMapView = (MapView) findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -381,9 +306,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                 carouselView = (CarouselView) findViewById(R.id.carouselView);
                 carouselView.setImageListener(imageListener);
                 carouselView.setPageCount(photoTables.size());//sampleImages.length
-                //carouselView.setOnClickListener(v -> showCarouselInFullScreen());
-
-
+                findViewById(R.id.imgViewFullScreenPhoto).setOnClickListener(v -> showCarouselInFullScreen());
 
                 for (int i = 0; i < photoTables.size(); i++) {
                     Log.e(TAG, "doInBackground: " + photoTables.get(i).getPhotoName());
@@ -395,71 +318,44 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         gh.execute();
     }
 
-    public void showCarouselInFullScreen(View v) {
+    public void showCarouselInFullScreen() {
 
-//        CarouselView carouselView=findViewById(R.id.carouselView);
-        ((ImageView)findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView)v).getDrawable());
-//        ((ImageView)findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView)carouselView.getFocusedChild()).getDrawable());
-        ((ImageView)findViewById(R.id.hide_this_image)).setVisibility(View.VISIBLE);
-        ((ImageView)findViewById(R.id.hide_this_image_close)).setVisibility(View.VISIBLE);
-        ((ImageView)findViewById(R.id.hide_this_image_close)).setOnClickListener(new View.OnClickListener() {
+        CarouselView carouselView = findViewById(R.id.carouselView);
+        /*((ImageView) findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView) v).getDrawable());
+        ((ImageView)findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView)carouselView.getFocusedChild()).getDrawable());
+        ((ImageView) findViewById(R.id.hide_this_image)).setVisibility(View.VISIBLE);
+        ((ImageView) findViewById(R.id.hide_this_image_close)).setVisibility(View.VISIBLE);
+        ((ImageView) findViewById(R.id.hide_this_image_close)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ImageView)findViewById(R.id.hide_this_image_close)).setVisibility(View.GONE);
-                ((ImageView)findViewById(R.id.hide_this_image)).setVisibility(View.GONE);
+                ((ImageView) findViewById(R.id.hide_this_image_close)).setVisibility(View.GONE);
+                ((ImageView) findViewById(R.id.hide_this_image)).setVisibility(View.GONE);
             }
-        });
+        });*/
+
+        windowManager = (WindowManager) (ViewPlaceActivity.this).getSystemService(Context.WINDOW_SERVICE);
+        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_TOAST,
+                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
+
+                PixelFormat.OPAQUE);
+        params.windowAnimations = R.style.WindowAnimation;
+
+        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+        rl = (RelativeLayout) inflater.inflate(R.layout.full_screen_carousel, null);
+        ImageButton ib2_close = rl.findViewById(R.id.ib2_close);
 
 
-//
-//        windowManager = (WindowManager) (ViewPlaceActivity.this).getSystemService(Context.WINDOW_SERVICE);
-//        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-//                WindowManager.LayoutParams.MATCH_PARENT,
-//                WindowManager.LayoutParams.WRAP_CONTENT,
-//                WindowManager.LayoutParams.TYPE_TOAST,
-//                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//
-//                PixelFormat.OPAQUE);
-//        params.windowAnimations = R.style.WindowAnimation;
-//
-//        ImageView imageView=(ImageView)v;
-//
-//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-//        rl = (RelativeLayout) inflater.inflate(R.layout.full_screen_carousel, null);
-//        ImageButton ib2_close = rl.findViewById(R.id.ib2_close);
-//
-//
-//        ImageView cV = rl.findViewById(R.id.carouselView2);
-//        cV.setImageDrawable(imageView.getDrawable());
-////        cV.setImageListener(imageListener);
-////        cV.setPageCount(photoTables2.size());
-////        cV.setCurrentItem(carouselView.getCurrentItem());
-////
-//        windowManager.addView(rl, params);
-//        ib2_close.setOnClickListener(v3 -> windowManager.removeView(rl));
+        CarouselView cV = rl.findViewById(R.id.carouselView2);
+        cV.setImageListener(imageListener);
+        cV.setPageCount(photoTables2.size());
+        cV.setCurrentItem(carouselView.getCurrentItem());
 
+        windowManager.addView(rl, params);
+        ib2_close.setOnClickListener(v3 -> windowManager.removeView(rl));
 
-
-
-//        windowManager = (WindowManager)getSystemService(WINDOW_SERVICE);
-//        LayoutInflater layoutInflater=(LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        rl = (RelativeLayout) layoutInflater.inflate(R.layout.full_screen_carousel, null);
-////        View view=layoutInflater.inflate(R.layout.full_screen_carousel, null);
-//
-//        WindowManager.LayoutParams params=new WindowManager.LayoutParams(
-//                WindowManager.LayoutParams.MATCH_PARENT,
-//                WindowManager.LayoutParams.MATCH_PARENT,
-//                WindowManager.LayoutParams.TYPE_PHONE,
-//                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-//                PixelFormat.TRANSLUCENT);
-//
-//        params.gravity= Gravity.CENTER|Gravity.CENTER;
-//        params.x=0;
-//        params.y=0;
-//
-////        Bitmap image=((GlideB)imageView.getDrawable()).getBitmap();
-//        ((ImageView)rl.findViewById(R.id.carouselView2)).setImageDrawable(imageView.getDrawable());
-//        windowManager.addView(rl, params);
     }
 
     @Override
@@ -485,7 +381,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     ImageListener imageListener = new ImageListener() {
         @Override
         public void setImageForPosition(int position, ImageView imageView) {
-//                imageView.setImageResource(sampleImages[position]);
+            // imageView.setImageResource(sampleImages[position]);
             String filename = photoTables2.get(position).getPhotoName();
             Glide.with(ViewPlaceActivity.this)
                     .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
@@ -496,7 +392,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
             imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showCarouselInFullScreen(v);
+                    //showCarouselInFullScreen(v);
                 }
             });
         }
@@ -825,7 +721,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     private String getTimeOnly() {
         Calendar c = Calendar.getInstance();
 
-//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        //SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         SimpleDateFormat df = new SimpleDateFormat("HH:mm");
         String formattedDate = df.format(c.getTime());
         return formattedDate;
