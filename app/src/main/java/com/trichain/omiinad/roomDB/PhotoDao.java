@@ -16,6 +16,9 @@ public interface PhotoDao {
     List<PhotoTable> getAllphotos(int holiday);
 
 
+    @Query("SELECT * FROM PhotoTable where id in (SELECT max(id) FROM PhotoTable GROUP BY placeID ) order by id desc")
+    List<PhotoTable> GetListPlacePhotos();
+
     @Query("SELECT * FROM PhotoTable WHERE 1")
     List<PhotoTable> getAllphotosUnconditional();
 
