@@ -1,6 +1,7 @@
 package com.trichain.omiinad.fragments;
 
 
+import android.app.AlertDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.PhotoAdapter;
 import com.trichain.omiinad.entities.PhotoTable;
@@ -36,6 +38,14 @@ public class GalleryFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View root = inflater.inflate(R.layout.fragment_gallery, container, false);
+        FloatingActionButton fabSort = root.findViewById(R.id.fabSort);
+        fabSort.setOnClickListener(v -> {
+            View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_filter, null);
+            AlertDialog.Builder b = new AlertDialog.Builder(getContext());
+            b.setView(dialogView);
+            b.show();
+        });
+
 
         class GetPhotos extends AsyncTask<Void, Void, List<PhotoTable>> {
 

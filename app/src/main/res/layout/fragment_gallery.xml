@@ -8,7 +8,18 @@
     android:background="@color/grey"
     tools:context=".fragments.GalleryFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabSort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="84dp"
+        android:elevation="5dp"
+        android:foregroundTint="@color/white"
+        android:src="@drawable/ic_sort"
+        app:backgroundTint="@color/orange"
+        app:fabSize="mini" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/eventsrec"
