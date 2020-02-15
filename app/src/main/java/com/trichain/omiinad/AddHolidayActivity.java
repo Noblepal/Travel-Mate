@@ -1,13 +1,19 @@
 package com.trichain.omiinad;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.libraries.places.api.Places;
@@ -19,24 +25,51 @@ import com.trichain.omiinad.roomDB.DatabaseClient;
 import com.trichain.omiinad.roomDB.OnViewSelected;
 import com.trichain.omiinad.adapters.SectionsPagerAdapter;
 
+import safety.com.br.android_shake_detector.core.ShakeCallback;
+import safety.com.br.android_shake_detector.core.ShakeDetector;
+import safety.com.br.android_shake_detector.core.ShakeOptions;
+
 import static com.trichain.omiinad.constants.Constant.APIKEY;
 
 public class AddHolidayActivity extends AppCompatActivity implements OnViewSelected {
     String startDate, stopDate, about, name;
     Double latitude, longitude;
+    int PERMISSION_ID=1111;
     String TAG = "AddHolidayActivity";
     private FloatingActionButton fabCompleteAddHoliday;
 
+    ShakeDetector shakeDetector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_holiday);
+        checkLocationPermission();
         fabCompleteAddHoliday = findViewById(R.id.fabCompleteAddHoliday);
         startDate = null;
         stopDate = null;
         latitude = 0.0;
         longitude = 0.0;
         about = "";
+        //sensors
+        ShakeOptions options = new ShakeOptions()
+                .background(true)
+                .interval(1000)
+                .shakeCount(2)
+                .sensibility(2.0f);
+
+        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
+            @Override
+            public void onShake() {
+                Log.e("event", "onShake");
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
+                    startActivity(intent);
+                }
+            }
+        });
+        //sesor
         // Initialize Places.
 
         Places.initialize(getApplicationContext(), APIKEY);
@@ -63,7 +96,41 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
         }
         Log.e(TAG, "onViewSelected: " + start);
     }
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(AddHolidayActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
 
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(AddHolidayActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+                new AlertDialog.Builder(AddHolidayActivity.this)
+                        .setTitle("Location Permission Needed")
+                        .setMessage("This app needs the Location permission, please accept to use location functionality")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(AddHolidayActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        PERMISSION_ID);
+                            }
+                        })
+                        .create()
+                        .show();
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(AddHolidayActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                        PERMISSION_ID);
+            }
+        }
+    }
     @Override
     public void onViewSelected(String name1, Double latitude1, Double longitude1) {
         Log.e(TAG, "onViewSelected: " + latitude1);
@@ -118,6 +185,25 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
         }
     }
 
+    @Override
+    public void onViewSelected(String requestPermissions, String s, String s1) {
+        ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                PERMISSION_ID
+        );
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == PERMISSION_ID) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startActivity(getIntent());
+            }else {
+                finish();
+            }
+        }
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

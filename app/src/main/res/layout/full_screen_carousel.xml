@@ -6,15 +6,11 @@
     android:layout_height="match_parent"
     android:background="@color/black_overlay">
 
-    <com.synnapps.carouselview.CarouselView
+    <ImageView
         android:id="@+id/carouselView2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:transitionName="carousel"
-        app:fillColor="#FFFFFFFF"
-        app:pageColor="#00000000"
-        app:radius="6dp"
-        app:slideInterval="5000"
+        android:background="@color/white"
         app:strokeColor="#FF777777"
         app:strokeWidth="1dp" />
 

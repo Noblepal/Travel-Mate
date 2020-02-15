@@ -67,6 +67,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import safety.com.br.android_shake_detector.core.ShakeCallback;
+import safety.com.br.android_shake_detector.core.ShakeDetector;
+import safety.com.br.android_shake_detector.core.ShakeOptions;
+
 import static com.trichain.omiinad.Utils.setGoogleMapStyle;
 
 public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -91,6 +95,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     int strtext;
     String people = "";
     String date, time;
+    ShakeDetector shakeDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,6 +105,26 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
         place = getIntent().getIntExtra("place", 0);
         people1 = 0;
 
+        //sensors
+        ShakeOptions options = new ShakeOptions()
+                .background(true)
+                .interval(1000)
+                .shakeCount(2)
+                .sensibility(2.0f);
+
+        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
+            @Override
+            public void onShake() {
+                Log.e("event", "onShake");
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
+                    startActivity(intent);
+                }
+            }
+        });
+        //sesor
         ((View) findViewById(R.id.back_btn2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -569,7 +594,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        LocationManager locationManager = (LocationManager) EditEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager locationManager =  (LocationManager) EditEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
                         Criteria criteria = new Criteria();
 
                         if (EditEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && EditEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -582,10 +607,15 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                             // for Activity#requestPermissions for more details.
                             return;
                         } else {
-                            Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                            latitude = location.getLatitude();
-                            longitude = location.getLongitude();
-                            Log.e(TAG, "onConnected: " + latitude);
+                            Location location = null;
+                            if (locationManager != null) {
+//                                location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+//                                if (location.hasAltitude()){
+////                                    latitude = location.getLatitude();
+////                                    longitude = location.getLongitude();
+//                                    Log.e(TAG, "onConnected: " + latitude);
+//                                }
+                            }
                         }
                     }
 

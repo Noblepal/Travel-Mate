@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -71,6 +73,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import safety.com.br.android_shake_detector.core.ShakeCallback;
+import safety.com.br.android_shake_detector.core.ShakeDetector;
+import safety.com.br.android_shake_detector.core.ShakeOptions;
+
 import static com.trichain.omiinad.Utils.setGoogleMapStyle;
 
 public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCallback,
@@ -96,6 +102,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     String people = "";
     private WindowManager windowManager;
     private RelativeLayout rl;
+    ShakeDetector shakeDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +111,26 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         place = getIntent().getIntExtra("place_id", 0);
         people1 = 0;
 
+        //sensors
+        ShakeOptions options = new ShakeOptions()
+                .background(true)
+                .interval(1000)
+                .shakeCount(2)
+                .sensibility(2.0f);
+
+        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
+            @Override
+            public void onShake() {
+                Log.e("event", "onShake");
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
+                    startActivity(intent);
+                }
+            }
+        });
+        //sesor
         //carosel
         getImages();
 //        ((ImageButton) findViewById(R.id.img_add_photo)).setOnClickListener(new View.OnClickListener() {
@@ -357,6 +384,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                 //carouselView.setOnClickListener(v -> showCarouselInFullScreen());
 
 
+
                 for (int i = 0; i < photoTables.size(); i++) {
                     Log.e(TAG, "doInBackground: " + photoTables.get(i).getPhotoName());
                 }
@@ -368,29 +396,70 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     public void showCarouselInFullScreen(View v) {
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
 
-                PixelFormat.OPAQUE);
-        params.windowAnimations = R.style.WindowAnimation;
+//        CarouselView carouselView=findViewById(R.id.carouselView);
+        ((ImageView)findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView)v).getDrawable());
+//        ((ImageView)findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView)carouselView.getFocusedChild()).getDrawable());
+        ((ImageView)findViewById(R.id.hide_this_image)).setVisibility(View.VISIBLE);
+        ((ImageView)findViewById(R.id.hide_this_image_close)).setVisibility(View.VISIBLE);
+        ((ImageView)findViewById(R.id.hide_this_image_close)).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ImageView)findViewById(R.id.hide_this_image_close)).setVisibility(View.GONE);
+                ((ImageView)findViewById(R.id.hide_this_image)).setVisibility(View.GONE);
+            }
+        });
 
-        windowManager = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
 
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        rl = (RelativeLayout) inflater.inflate(R.layout.full_screen_carousel, null);
-        ImageButton ib2_close = rl.findViewById(R.id.ib2_close);
+//
+//        windowManager = (WindowManager) (ViewPlaceActivity.this).getSystemService(Context.WINDOW_SERVICE);
+//        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+//                WindowManager.LayoutParams.MATCH_PARENT,
+//                WindowManager.LayoutParams.WRAP_CONTENT,
+//                WindowManager.LayoutParams.TYPE_TOAST,
+//                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//
+//                PixelFormat.OPAQUE);
+//        params.windowAnimations = R.style.WindowAnimation;
+//
+//        ImageView imageView=(ImageView)v;
+//
+//        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
+//        rl = (RelativeLayout) inflater.inflate(R.layout.full_screen_carousel, null);
+//        ImageButton ib2_close = rl.findViewById(R.id.ib2_close);
+//
+//
+//        ImageView cV = rl.findViewById(R.id.carouselView2);
+//        cV.setImageDrawable(imageView.getDrawable());
+////        cV.setImageListener(imageListener);
+////        cV.setPageCount(photoTables2.size());
+////        cV.setCurrentItem(carouselView.getCurrentItem());
+////
+//        windowManager.addView(rl, params);
+//        ib2_close.setOnClickListener(v3 -> windowManager.removeView(rl));
 
 
-        CarouselView cV = rl.findViewById(R.id.carouselView2);
-        cV.setImageListener(imageListener);
-        cV.setPageCount(photoTables2.size());
-        cV.setCurrentItem(carouselView.getCurrentItem());
 
-        windowManager.addView(rl, params);
-        ib2_close.setOnClickListener(v3 -> windowManager.removeView(rl));
+
+//        windowManager = (WindowManager)getSystemService(WINDOW_SERVICE);
+//        LayoutInflater layoutInflater=(LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        rl = (RelativeLayout) layoutInflater.inflate(R.layout.full_screen_carousel, null);
+////        View view=layoutInflater.inflate(R.layout.full_screen_carousel, null);
+//
+//        WindowManager.LayoutParams params=new WindowManager.LayoutParams(
+//                WindowManager.LayoutParams.MATCH_PARENT,
+//                WindowManager.LayoutParams.MATCH_PARENT,
+//                WindowManager.LayoutParams.TYPE_PHONE,
+//                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+//                PixelFormat.TRANSLUCENT);
+//
+//        params.gravity= Gravity.CENTER|Gravity.CENTER;
+//        params.x=0;
+//        params.y=0;
+//
+////        Bitmap image=((GlideB)imageView.getDrawable()).getBitmap();
+//        ((ImageView)rl.findViewById(R.id.carouselView2)).setImageDrawable(imageView.getDrawable());
+//        windowManager.addView(rl, params);
     }
 
     @Override
@@ -424,8 +493,17 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                     .placeholder(R.drawable.ic_landscape)
                     .transition(DrawableTransitionOptions.withCrossFade(500))
                     .into(imageView);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    showCarouselInFullScreen(v);
+                }
+            });
         }
+
+
     };
+
 
     public void trySave(View v) {
         TextView img_add_photo_no, id_date, id_day, tv_time1, people;
@@ -623,7 +701,6 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     public void onProviderDisabled(String provider) {
 
     }
-
 
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(ViewPlaceActivity.this)

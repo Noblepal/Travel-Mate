@@ -27,6 +27,10 @@ import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
+import safety.com.br.android_shake_detector.core.ShakeCallback;
+import safety.com.br.android_shake_detector.core.ShakeDetector;
+import safety.com.br.android_shake_detector.core.ShakeOptions;
+
 public class HolidayDetailActivity extends AppCompatActivity {
 
     private Menu menu;
@@ -35,6 +39,7 @@ public class HolidayDetailActivity extends AppCompatActivity {
     private RelativeLayout rlNoPlaces;
     private ImageView imgNoPlaces;
 
+    ShakeDetector shakeDetector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,6 +49,26 @@ public class HolidayDetailActivity extends AppCompatActivity {
         holidayid = getIntent().getIntExtra("holiday", 0);
         Log.e(TAG, "onCreate: " + holidayid);
 
+        //sensors
+        ShakeOptions options = new ShakeOptions()
+                .background(true)
+                .interval(1000)
+                .shakeCount(2)
+                .sensibility(2.0f);
+
+        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
+            @Override
+            public void onShake() {
+                Log.e("event", "onShake");
+                Intent intent = new Intent(Intent.ACTION_MAIN);
+                intent.addCategory(Intent.CATEGORY_HOME);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
+                    startActivity(intent);
+                }
+            }
+        });
+        //sesor
         rlNoPlaces = findViewById(R.id.rlNoPlaces);
         imgNoPlaces = findViewById(R.id.imgNoPlaces);
         setImage(holidayid);

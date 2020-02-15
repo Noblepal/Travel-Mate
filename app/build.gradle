@@ -74,4 +74,7 @@ dependencies {
 
     //carousel
     implementation 'com.synnapps:carouselview:0.1.5'
+
+    //shake
+    implementation 'com.github.safetysystemtechnology:android-shake-detector:v1.2'
 }

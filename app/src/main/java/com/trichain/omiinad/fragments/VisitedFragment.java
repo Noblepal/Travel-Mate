@@ -76,26 +76,26 @@ public class VisitedFragment extends Fragment {
                 // For dropping a marker at a point on the Map
                 LatLng sydney = new LatLng(-34, 151);
                 getPlaces(googleMap);
-                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                    @Override
-                    public boolean onMarkerClick(Marker marker) {
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Title")
-                                .setMessage("Endereço: Telefone: ")
-                                .setPositiveButton("Ir", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-//                                        Intent intent=new Intent(getActivity(),)
-                                    }
-                                })
-                                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // do nothing
-                                    }
-                                })
-                                .show();
-                        return false;
-                    }
-                });
+//                mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+//                    @Override
+//                    public boolean onMarkerClick(Marker marker) {
+//                        new AlertDialog.Builder(getActivity())
+//                                .setTitle("Title")
+//                                .setMessage("Endereço: Telefone: ")
+//                                .setPositiveButton("Ir", new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+////                                        Intent intent=new Intent(getActivity(),)
+//                                    }
+//                                })
+//                                .setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        // do nothing
+//                                    }
+//                                })
+//                                .show();
+//                        return false;
+//                    }
+//                });
 
                 // For zooming automatically to the location of the marker
                 CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
@@ -153,7 +153,7 @@ public class VisitedFragment extends Fragment {
                 for (int i = 0; i < visitedPlaceTables.size(); i++) {
                     System.out.println(visitedPlaceTables.get(i));
                     Log.e(TAG, "doInBackground: " + visitedPlaceTables.get(i).getName());
-                    String name, des;
+                    String name, des,date;
                     Double longitude, latitude;
                     int id;
                     name = visitedPlaceTables.get(i).getName();
@@ -161,9 +161,11 @@ public class VisitedFragment extends Fragment {
                     longitude = visitedPlaceTables.get(i).getLongitude();
                     latitude = visitedPlaceTables.get(i).getLatitude();
                     id = visitedPlaceTables.get(i).getId();
+                    date = visitedPlaceTables.get(i).getVisitDate();
+
                     LatLng sydney = new LatLng(latitude, longitude);
 
-                    googleMap.addMarker(new MarkerOptions().position(sydney).title(name).snippet(des));
+                    googleMap.addMarker(new MarkerOptions().position(sydney).title(name).snippet("Date-"+date));
 
                 }
 //

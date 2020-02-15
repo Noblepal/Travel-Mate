@@ -101,7 +101,7 @@ public class LocationFragment extends Fragment {
             public void onPlaceSelected(Place place) {
                 // TODO: Get info about the selected place.
                 Log.e(TAG, "Place: " + place.getName() + ", " + place.getLatLng());
-                _mClickListener.onViewSelected("Custom", place.getLatLng().latitude, place.getLatLng().longitude);
+                _mClickListener.onViewSelected(place.getName(), place.getLatLng().latitude, place.getLatLng().longitude);
             }
 
             @Override
@@ -126,37 +126,44 @@ public class LocationFragment extends Fragment {
         if (checkPermissions()) {
             mFusedLocationClient.getLastLocation().addOnCompleteListener(
                     task -> {
+                        Log.e(TAG, "showAcquiringLocationDialog: Task starting" );
                         Location location = task.getResult();
                         if (location == null) {
                             requestNewLocationData();
                             isLocationFound = false;
+                            Log.e(TAG, "showAcquiringLocationDialog: Task false" );
                         } else {
+
+                            Log.e(TAG, "showAcquiringLocationDialog: Task true" );
                             mProgressBar.setVisibility(View.INVISIBLE);
                             saveLocation.setEnabled(true);
                             locationName.setText(String.format("Lat: %s Lng: %s", location.getLatitude(), location.getLongitude()));
                             mLatLng = new LatLng(location.getLatitude(), location.getLongitude());
                         }
+
+                        Log.e(TAG, "showAcquiringLocationDialog: Task end" );
                     }
             );
+            AlertDialog mDialog = mBuilder.create();
+            mDialog.show();
+
+            EditText edtCustomLocation = v.findViewById(R.id.edtCustomLocation);
+            cancelButton.setOnClickListener(view -> mDialog.dismiss());
+            saveLocation.setOnClickListener(v1 -> {
+                String customLocation = edtCustomLocation.getText().toString().trim();
+                if (customLocation.isEmpty()) {
+                    edtCustomLocation.setError("Please enter location name");
+                } else {
+                    mDialog.dismiss();
+                    tvCurrentLocation.setText(customLocation);
+                    _mClickListener.onViewSelected(customLocation, mLatLng.latitude, mLatLng.longitude);
+                }
+            });
         } else {
-            requestPermissions();
+            _mClickListener.onViewSelected("requestPermissions","","");
+//            requestPermissions();
         }
 
-        AlertDialog mDialog = mBuilder.create();
-        mDialog.show();
-
-        EditText edtCustomLocation = v.findViewById(R.id.edtCustomLocation);
-        cancelButton.setOnClickListener(view -> mDialog.dismiss());
-        saveLocation.setOnClickListener(v1 -> {
-            String customLocation = edtCustomLocation.getText().toString().trim();
-            if (customLocation.isEmpty()) {
-                edtCustomLocation.setError("Please enter location name");
-            } else {
-                mDialog.dismiss();
-                tvCurrentLocation.setText(customLocation);
-                _mClickListener.onViewSelected(customLocation, mLatLng.latitude, mLatLng.longitude);
-            }
-        });
     }
 
     private void showGPSWarningDialog() {
@@ -203,7 +210,7 @@ public class LocationFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_ID) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "Granted. Start getting the location information");
+                Log.d(TAG, "Granted. Start getting the location information 2");
             }
         }
     }
