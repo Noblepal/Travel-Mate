@@ -24,4 +24,11 @@
         app:layout_constraintTop_toBottomOf="@id/til_entry_text"
         tools:listitem="@layout/item_photo" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/eventsrec93"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
+        tools:listitem="@layout/item_photo" />
+
 </FrameLayout>
