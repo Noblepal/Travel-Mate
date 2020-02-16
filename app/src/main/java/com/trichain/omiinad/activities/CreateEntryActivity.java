@@ -68,6 +68,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -265,16 +266,16 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
 
             }
         });
-        mMapView = (MapView) findViewById(R.id.mapView);
-        mMapView.onCreate(savedInstanceState);
-
-        mMapView.onResume(); // needed to get the map to display immediately
-
         try {
             MapsInitializer.initialize(CreateEntryActivity.this.getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
+
+        mMapView.onResume(); // needed to get the map to display immediately
+
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
@@ -310,19 +311,21 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                         buildGoogleApiClient();
                         googleMap.setMyLocationEnabled(true);
                     }
-                    googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
-                        @Override
-                        public void onMapLongClick(LatLng latLng) {
-                            googleMap.addMarker(new MarkerOptions().position(latLng).title("Marker Title").snippet("Marker Description"));
 
-                            // For zooming automatically to the location of the marker
-                            CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(12).build();
-                            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                            latitude = latLng.latitude;
-                            longitude = latLng.longitude;
-                        }
-                    });
                 }
+                googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                    @Override
+                    public void onMapLongClick(LatLng latLng) {
+                        Log.e(TAG, "onMapLongClick: " );
+                        googleMap.addMarker(new MarkerOptions().position(latLng).title("Selected").snippet("Location"));
+
+                        // For zooming automatically to the location of the marker
+                        CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(12).build();
+                        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                        latitude = latLng.latitude;
+                        longitude = latLng.longitude;
+                    }
+                });
             }
         });
 
@@ -413,6 +416,12 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                     for (int i = 0; i < images.size(); i++) {
                         System.out.println(images.get(i));
                         Log.e(TAG, "doInBackground: " + images.get(i).getPath());
+                        Calendar c = Calendar.getInstance();
+
+
+                        Date date = c.getTime();
+                        String newDateString = new SimpleDateFormat("dd MMM yyyy").format(date);
+
 
                         Uri imageUri = Uri.parse(images.get(i).getPath());
                         Bitmap bitmap = null;
@@ -429,6 +438,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                             photoTable.setHolidayID(holiday);
                             photoTable.setPhotoName(fileSuffix + images.get(i).getName());
                             photoTable.setPlaceID(vid2);
+                            photoTable.setPhotoDate(newDateString);
 
 
                             DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
@@ -758,4 +768,10 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
             longitude = location.getLongitude();
         }
     };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shakeDetector.stopShakeDetector(this);
+    }
 }

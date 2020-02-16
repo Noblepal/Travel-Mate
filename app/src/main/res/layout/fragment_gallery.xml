@@ -8,7 +8,31 @@
     android:background="@color/grey"
     tools:context=".fragments.GalleryFragment">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/holiday"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
+        tools:listitem="@layout/item_photo" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/place"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
+        tools:listitem="@layout/item_photo" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
+        tools:listitem="@layout/item_photo" />
+
+   <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabSort"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -20,26 +44,5 @@
         android:src="@drawable/ic_sort"
         app:backgroundTint="@color/orange"
         app:fabSize="mini" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/eventsrec"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
-        tools:listitem="@layout/item_photo" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/eventsrec2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
-        tools:listitem="@layout/item_photo" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/eventsrec93"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/til_entry_text"
-        tools:listitem="@layout/item_photo" />
 
 </FrameLayout>

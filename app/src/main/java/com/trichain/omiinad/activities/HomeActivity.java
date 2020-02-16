@@ -123,4 +123,10 @@ public class HomeActivity extends AppCompatActivity implements SensorListener {
     public void onAccuracyChanged(int sensor, int accuracy) {
 
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shakeDetector.stopShakeDetector(this);
+    }
 }
