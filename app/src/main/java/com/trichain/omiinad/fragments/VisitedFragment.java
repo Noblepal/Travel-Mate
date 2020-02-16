@@ -146,7 +146,7 @@ public class VisitedFragment extends Fragment {
 
 //                TasksAdapter adapter = new TasksAdapter(MainActivity.this, tasks);
 //                recyclerView.setAdapter(adapter);
-
+                LatLng sydney2=new LatLng(-34, 151);
 
                 for (int i = 0; i < visitedPlaceTables.size(); i++) {
                     System.out.println(visitedPlaceTables.get(i));
@@ -161,11 +161,14 @@ public class VisitedFragment extends Fragment {
                     id = visitedPlaceTables.get(i).getId();
                     date = visitedPlaceTables.get(i).getVisitDate();
 
-                    LatLng sydney = new LatLng(latitude, longitude);
+                    sydney2 = new LatLng(latitude, longitude);
 
-                    googleMap.addMarker(new MarkerOptions().position(sydney).title(name).snippet("Date-"+date));
+                    googleMap.addMarker(new MarkerOptions().position(sydney2).title(name).snippet("Date-"+date));
 
                 }
+
+                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney2).zoom(12).build();
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 //
 //                RecyclerView recyclerView = root.findViewById(R.id.eventsrec);
 //                recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));

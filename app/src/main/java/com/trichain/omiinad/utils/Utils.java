@@ -53,7 +53,19 @@ public class Utils {
         }
         return reformattedStr;
     }
+    public static String formatToReadable(Date date) {
 
+        String reformattedStr = "";
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-d hh:mm:ss");
+        String strDate= formatter.format(date);
+        System.out.println(strDate);
+        Log.e(TAG, "formatToReadable: "+strDate );
+
+        reformattedStr = strDate;
+
+
+        return reformattedStr;
+    }
     //2020-02-14 19:42:14
     public static String getDateNumberOnly(String d) {
         String[] x = d.split(" ");

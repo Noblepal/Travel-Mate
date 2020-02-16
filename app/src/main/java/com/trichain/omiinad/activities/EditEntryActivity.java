@@ -35,6 +35,8 @@ import androidx.core.content.ContextCompat;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.features.ReturnMode;
 import com.esafirm.imagepicker.model.Image;
+import com.github.florent37.singledateandtimepicker.SingleDateAndTimePicker;
+import com.github.florent37.singledateandtimepicker.dialog.SingleDateAndTimePickerDialog;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
@@ -55,6 +57,7 @@ import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -68,6 +71,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import okhttp3.internal.Util;
 import safety.com.br.android_shake_detector.core.ShakeCallback;
 import safety.com.br.android_shake_detector.core.ShakeDetector;
 import safety.com.br.android_shake_detector.core.ShakeOptions;
@@ -243,8 +247,35 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
             getPeople();
         }
     }
+public void editDate(View v){
+    new SingleDateAndTimePickerDialog.Builder(EditEntryActivity.this)
+            //.bottomSheet()
+            //.curved()
+            //.minutesStep(15)
+            //.displayHours(false)
+            //.displayMinutes(false)
+            //.todayText("aujourd'hui")
+            .displayListener(new SingleDateAndTimePickerDialog.DisplayListener() {
+                @Override
+                public void onDisplayed(SingleDateAndTimePicker picker) {
+                    //retrieve the SingleDateAndTimePicker
+                }
+            })
 
-    public void setGoogleMap(Double latitude, Double longitude, String name) {
+            .title("Simple")
+            .listener(new SingleDateAndTimePickerDialog.Listener() {
+                @Override
+                public void onDateSelected(Date date2) {
+                    date= Utils.formatToReadable(date2);
+
+                    ((EditText) findViewById(R.id.id_day)).setText(date);
+                    ((EditText) findViewById(R.id.id_date)).setText(date);
+
+                }
+            }).display();
+}
+
+    public void setGoogleMap(Double latitude2, Double longitude2, String name) {
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
@@ -257,7 +288,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                 //googleMap.setMyLocationEnabled(true);
 
                 // For dropping a marker at a point on the Map
-                LatLng sydney = new LatLng(latitude, longitude);
+                LatLng sydney = new LatLng(latitude2, longitude2);
                 googleMap.addMarker(new MarkerOptions().position(sydney).title(name).snippet("You visited this place"));
 
                 // For zooming automatically to the location of the marker
@@ -283,7 +314,8 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                     @Override
                     public void onMapLongClick(LatLng latLng) {
                         googleMap.addMarker(new MarkerOptions().position(latLng).title("Marker Title").snippet("Marker Description"));
-
+                        longitude=latLng.longitude;
+                        latitude=latLng.latitude;
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(12).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
