@@ -62,6 +62,36 @@ public class Utils {
         return xD[2];
     }
 
+    public static String getTimeNumberOnly(String date) {
+        date = extractDate(date);
+        String reformattedStr = "";
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm");
+        SimpleDateFormat fromInput = new SimpleDateFormat("yyyy-MMM-d");
+
+        try {
+            Date fromUser = fromInput.parse(date);
+            reformattedStr = dateFormat.format(fromUser);
+        } catch (ParseException e) {
+            try {
+                //2020-02-14 19:43:29
+                dateFormat = new SimpleDateFormat("h:mm a");
+                fromInput = new SimpleDateFormat("yyyy-MM-d hh:mm:ss");
+                String[] x = date.split(" ");
+                String mDate1 = x[1];
+                Log.e(TAG, "formatDate: new date :" + mDate1);
+                Date fromUser = fromInput.parse(mDate1);
+                reformattedStr = dateFormat.format(fromUser);
+
+                Log.e(TAG, "formatDate: " + Arrays.toString(x));
+
+            } catch (Exception e1) {
+                Log.e(TAG, "formatDate: Not a valid date: " + date);
+            }
+            e.printStackTrace();
+        }
+        return reformattedStr;
+    }
     private static String extractDate(String a) {
         try {
             String[] newDate = a.split(" ");

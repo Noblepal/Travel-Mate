@@ -1,6 +1,7 @@
 package com.trichain.omiinad.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -262,10 +263,12 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                     @Override
                     public void run() {
                         try {
-                            ((TextView) findViewById(R.id.id_date)).setText(getDateOnly(visitedPlaceTables.getVisitDate()));
-                            ((TextView) findViewById(R.id.id_day)).setText(getDayMonthYear(visitedPlaceTables.getVisitDate()));
+                            ((TextView) findViewById(R.id.id_date)).setText(Utils.getDateNumberOnly(visitedPlaceTables.getVisitDate()));
+                            ((TextView) findViewById(R.id.id_day)).setText(Utils.formatDate(visitedPlaceTables.getVisitDate()));
+                            Log.e(TAG, "run: "+getDateOnly(Utils.getTimeNumberOnly(visitedPlaceTables.getVisitDate())));
                         } catch (ParseException e) {
                             e.printStackTrace();
+                            Log.e(TAG, "run: "+e );
                         }
                         ((TextView) findViewById(R.id.place_name)).setText(visitedPlaceTables.getName());
                         ((View) findViewById(R.id.hide_me)).setOnClickListener(new View.OnClickListener() {
@@ -277,7 +280,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                                 startActivity(intent);
                             }
                         });
-                        ((TextView) findViewById(R.id.tv_time1)).setText(visitedPlaceTables.getVisitTime());
+                        ((TextView) findViewById(R.id.tv_time1)).setText(Utils.getTimeNumberOnly(visitedPlaceTables.getVisitDate()));
                         ((TextView) findViewById(R.id.til_entry_title)).setText(visitedPlaceTables.getText());
                         setGoogleMap(visitedPlaceTables.getLatitude(), visitedPlaceTables.getLongitude(), visitedPlaceTables.getName());
                     }
@@ -705,12 +708,13 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private String getDayMonthYear(String a) throws ParseException {
-        Date df = new SimpleDateFormat("E\nMMM yyyy").parse(a);
+        @SuppressLint("SimpleDateFormat") Date df = new SimpleDateFormat("E\nMMM yyyy").parse(a);
+        assert df != null;
         return df.toString();
     }
 
     private String getDateOnly(String a) throws ParseException {
-        Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(a);
+        @SuppressLint("SimpleDateFormat") Date date1 = new SimpleDateFormat("dd").parse(a);
         return date1.toString();
     }
 

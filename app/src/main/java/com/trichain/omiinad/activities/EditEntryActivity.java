@@ -355,12 +355,9 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                 EditEntryActivity.this.runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        try {
-                            ((TextView) findViewById(R.id.id_date)).setText(getDateOnly(visitedPlaceTables.getVisitDate()));
-                            ((TextView) findViewById(R.id.id_day)).setText(getDayMonthYear(visitedPlaceTables.getVisitDate()));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
+                        date = visitedPlaceTables.getVisitDate();
+                        ((EditText) findViewById(R.id.id_date)).setText(date);
+                        ((EditText) findViewById(R.id.id_day)).setText(date);
                         ((com.google.android.material.textfield.TextInputEditText) findViewById(R.id.id_title)).setText(visitedPlaceTables.getName());
                         /*((View) findViewById(R.id.hide_me)).setOnClickListener(new View.OnClickListener() {
                             @Override
@@ -371,12 +368,11 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                                 startActivity(intent);
                             }
                         });*/
-                        ((TextView) findViewById(R.id.tv_time1)).setText(visitedPlaceTables.getVisitTime());
+//                        ((EditText) findViewById(R.id.tv_time1)).setText(visitedPlaceTables.getVisitTime());
                         ((com.google.android.material.textfield.TextInputEditText) findViewById(R.id.id_msg)).setText(visitedPlaceTables.getText());
                         latitude = visitedPlaceTables.getLatitude();
                         longitude = visitedPlaceTables.getLongitude();
 
-                        date = visitedPlaceTables.getVisitDate();
                         time = visitedPlaceTables.getVisitTime();
                         setGoogleMap(visitedPlaceTables.getLatitude(), visitedPlaceTables.getLongitude(), visitedPlaceTables.getName());
                     }
@@ -390,13 +386,13 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     public void trySave(View v) {
-        TextView img_add_photo_no, id_date, id_day, tv_time1, people;
+        TextView img_add_photo_no,tv_time1, people;
 
-        TextInputEditText id_title, id_msg;
+        TextInputEditText id_title, id_msg,id_date,id_day;
         img_add_photo_no = findViewById(R.id.img_add_photo_no);
         id_date = findViewById(R.id.id_date);
-        id_day = findViewById(R.id.id_day);
-        tv_time1 = findViewById(R.id.tv_time1);
+        id_day = findViewById(R.id.id_day);//
+//        tv_time1 = findViewById(R.id.tv_time1);
         id_title = findViewById(R.id.id_title);
         id_msg = findViewById(R.id.id_msg);
         people = findViewById(R.id.people);
@@ -415,7 +411,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
 
             String id_dates = id_date.getText().toString();
             String id_days = id_day.getText().toString();
-            String tv_time1s = tv_time1.getText().toString();
+//            String tv_time1s = tv_time1.getText().toString();
             String id_titles = id_title.getText().toString();
             String id_msgs = id_msg.getText().toString();
 
@@ -442,8 +438,8 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                     visitedPlaceTable.setLongitude(longitude);
                     visitedPlaceTable.setText(id_msgs);
                     visitedPlaceTable.setId(place);
-                    visitedPlaceTable.setVisitDate(formattedDate);
-                    visitedPlaceTable.setVisitTime(formattedDate2);
+                    visitedPlaceTable.setVisitDate(id_days);
+                    visitedPlaceTable.setVisitTime(time);
 
 
                     DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
