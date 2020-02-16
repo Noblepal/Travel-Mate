@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
+import android.os.Environment;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,9 +21,16 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.synnapps.carouselview.CarouselView;
+import com.synnapps.carouselview.ImageListener;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.entities.PhotoTable;
+
+import java.io.File;
+import java.util.List;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions.withCrossFade;
@@ -33,10 +41,11 @@ public class PhotoFullPopupWindow extends PopupWindow {
     Context mContext;
     ViewGroup parent;
     ImageView imageView;
+    CarouselView carouselView;
     private static PhotoFullPopupWindow instance = null;
 
 
-    public PhotoFullPopupWindow(Context ctx, String name, int layout, View v, String imageUrl, Bitmap bitmap) {
+    public PhotoFullPopupWindow(int mPosition, List<PhotoTable> photoTable, Context ctx, String name, int layout, View v, String imageUrl, Bitmap bitmap) {
         super(((LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.popup_photo_full, null), ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -65,6 +74,24 @@ public class PhotoFullPopupWindow extends PopupWindow {
         });
         //---------Begin customising this popup--------------------
 
+        ImageListener imageListener = new ImageListener() {
+            @Override
+            public void setImageForPosition(int position, ImageView imageView) {
+                // imageView.setImageResource(sampleImages[position]);
+                String filename = photoTable.get(position).getPhotoName();
+                Glide.with(ctx)
+                        .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
+                        .fallback(R.drawable.landscape)
+                        .placeholder(R.drawable.landscape)
+                        .transition(DrawableTransitionOptions.withCrossFade(500))
+                        .into(imageView);
+            }
+        };
+
+        carouselView = view.findViewById(R.id.image2);
+        carouselView.setImageListener(imageListener);
+        carouselView.setPageCount(photoTable.size());
+        carouselView.setCurrentItem(mPosition);
         imageView = view.findViewById(R.id.image);
         parent = (ViewGroup) imageView.getParent();
         // ImageUtils.setZoomable(imageView);
@@ -74,7 +101,6 @@ public class PhotoFullPopupWindow extends PopupWindow {
                 parent.setBackground(new BitmapDrawable(mContext.getResources(), Utils.fastblur(Bitmap.createScaledBitmap(bitmap, 50, 50, true))));// ));
             } else {
                 onPalette(Palette.from(bitmap).generate());
-
             }
             imageView.setImageBitmap(bitmap);
         } else {
@@ -116,5 +142,4 @@ public class PhotoFullPopupWindow extends PopupWindow {
             parent.setBackgroundColor(palette.getDarkVibrantColor(Color.GRAY));
         }
     }
-
 }

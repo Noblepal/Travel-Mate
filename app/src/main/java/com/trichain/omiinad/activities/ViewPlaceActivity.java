@@ -374,8 +374,6 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                 }
             });
         }
-
-
     };
 
 
