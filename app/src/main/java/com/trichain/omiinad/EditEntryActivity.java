@@ -100,7 +100,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_entry);
+        setContentView(R.layout.activity_edit_entry);
         holiday = getIntent().getIntExtra("holiday", 0);
         place = getIntent().getIntExtra("place", 0);
         people1 = 0;
@@ -226,16 +226,16 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
 
             }
         });
-        mMapView = (MapView) findViewById(R.id.mapView);
-        mMapView.onCreate(savedInstanceState);
-
-        mMapView.onResume(); // needed to get the map to display immediately
-
         try {
             MapsInitializer.initialize(EditEntryActivity.this.getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        mMapView = (MapView) findViewById(R.id.mapView);
+        mMapView.onCreate(savedInstanceState);
+
+        mMapView.onResume(); // needed to get the map to display immediately
+
 
         if (place != 0) {
             getHolidayId();
@@ -278,7 +278,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                     buildGoogleApiClient();
                     googleMap.setMyLocationEnabled(true);
                 }
-                /*googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
+                googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
                     public void onMapLongClick(LatLng latLng) {
                         googleMap.addMarker(new MarkerOptions().position(latLng).title("Marker Title").snippet("Marker Description"));
@@ -287,7 +287,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
                     }
-                });*/
+                });
             }
         });
     }
@@ -455,6 +455,8 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                             System.out.println(images.get(i));
                             Log.e(TAG, "doInBackground: " + images.get(i).getPath());
 
+                            Date date = c.getTime();
+                            String newDateString = new SimpleDateFormat("dd MMM yyyy").format(date);
                             Uri imageUri = Uri.parse(images.get(i).getPath());
                             Bitmap bitmap = null;
                             try {
@@ -470,6 +472,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                                 photoTable.setHolidayID(holiday);
                                 photoTable.setPhotoName(fileSuffix + images.get(i).getName());
                                 photoTable.setPlaceID(vid2);
+                                photoTable.setPhotoDate(newDateString);
 
 
                                 DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()

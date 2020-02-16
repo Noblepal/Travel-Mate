@@ -20,6 +20,8 @@ public class PhotoTable implements Serializable {
     @ColumnInfo(name = "photoName")
     private String photoName;
 
+    @ColumnInfo(name = "photoDate")
+    private String photoDate;
 
     //getters and setters
 
@@ -54,5 +56,13 @@ public class PhotoTable implements Serializable {
 
     public void setPhotoName(String photoName) {
         this.photoName = photoName;
+    }
+
+    public String getPhotoDate() {
+        return photoDate;
+    }
+
+    public void setPhotoDate(String photoDate) {
+        this.photoDate = photoDate;
     }
 }

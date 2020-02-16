@@ -8,6 +8,7 @@ import androidx.room.Update;
 
 
 import com.trichain.omiinad.entities.HolidayTable;
+import com.trichain.omiinad.entities.VisitedPlaceTable;
 
 import java.util.List;
 
@@ -15,6 +16,9 @@ import java.util.List;
 public interface HolidayDao {
     @Query("SELECT * FROM HolidayTable")
     List<HolidayTable> getAllHolidays();
+
+    @Query("SELECT * FROM VisitedPlaceTable WHERE id= :holiday limit 1")
+    HolidayTable getHolidayIdofplace(int holiday);
 
     @Insert
     void insert(HolidayTable holidayTable);

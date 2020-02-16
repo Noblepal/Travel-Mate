@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.trichain.omiinad.DetailGalleryActivity;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.entities.HolidayTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.roomDB.DatabaseClient;
@@ -25,17 +26,17 @@ import com.trichain.omiinad.roomDB.DatabaseClient;
 import java.io.Serializable;
 import java.util.List;
 
-public class PhotoPlaceListAdapter extends RecyclerView.Adapter<PhotoPlaceListAdapter.HolidayViewHolder> {
+public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAdapter.HolidayViewHolder> {
 
     List<PhotoTable> photoTables;
     Context context;
     boolean isImageFitToScreen,isDate,isHoliday,isPlace,descending;
-    String type;
+    String type="";
     String TAG="PhotoPlaceListAdapter";
     RecyclerView mRecyclerView;
     private final View.OnClickListener mOnClickListener = new MyOnClickListener();
 
-    public PhotoPlaceListAdapter(List<PhotoTable> photoTables, Context context, boolean isDate, boolean isHoliday, boolean isPlace, boolean descending, RecyclerView recyclerView) {
+    public PhotoGroupListAdapter(List<PhotoTable> photoTables, Context context, boolean isDate, boolean isHoliday, boolean isPlace, boolean descending, RecyclerView recyclerView) {
         this.photoTables = photoTables;
         this.context = context;
         this.isDate = isDate;
@@ -49,6 +50,9 @@ public class PhotoPlaceListAdapter extends RecyclerView.Adapter<PhotoPlaceListAd
             this.type="holiday";
         }else if (isPlace){
             this.type="place";
+        }else {
+            this.type="place";
+
         }
 
     }
@@ -70,9 +74,17 @@ public class PhotoPlaceListAdapter extends RecyclerView.Adapter<PhotoPlaceListAd
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
 
         final PhotoTable h = photoTables.get(position);
+        String name="";
         getOnePhotos(h.getPhotoName(), context, holder.imageView);
-        holder.photoName.setText(h.getPhotoName());
-        getName(h.getPlaceID(),context,holder.photoName);
+        if (type.contentEquals("date")){
+            holder.photoName.setText(h.getPhotoDate());
+        }else if (type.contentEquals("holiday")){
+            getHolName(h.getHolidayID(),context,holder.photoName);
+
+        }else if (type.contentEquals("place")){
+            getVisName(h.getPlaceID(),context,holder.photoName);
+        }
+        Log.e(TAG, "onBindViewHolder: "+type );
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,7 +115,37 @@ public class PhotoPlaceListAdapter extends RecyclerView.Adapter<PhotoPlaceListAd
         }
     }
 
-    private void getName(final int a, final Context context, final TextView view) {
+    private void getHolName(final int a, final Context context, final TextView view) {
+        class SaveTask extends AsyncTask<Void, Void, HolidayTable> {
+
+            @Override
+            protected HolidayTable doInBackground(Void... voids) {
+
+                final HolidayTable visitedPlaceTable = DatabaseClient
+                        .getInstance(context)
+                        .getAppDatabase()
+                        .holidayDao()
+                        .getHolidayIdofplace(a);
+                return visitedPlaceTable;
+            }
+
+            @Override
+            protected void onPostExecute(HolidayTable aVoid) {
+                super.onPostExecute(aVoid);
+                ((Activity) context).runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        //change View Data
+                        view.setText(aVoid.getName());
+                    }
+                });
+            }
+        }
+
+        SaveTask st = new SaveTask();
+        st.execute();
+    }
+    private void getVisName(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, VisitedPlaceTable> {
 
             @Override

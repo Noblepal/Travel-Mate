@@ -570,6 +570,8 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                         System.out.println(images.get(i));
                         Log.e(TAG, "doInBackground: " + images.get(i).getPath());
 
+                        Date date = c.getTime();
+                        String newDateString = new SimpleDateFormat("dd MMM yyyy").format(date);
                         Uri imageUri = Uri.parse(images.get(i).getPath());
                         Bitmap bitmap = null;
                         try {
@@ -585,6 +587,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
                             photoTable.setHolidayID(place);
                             photoTable.setPhotoName(fileSuffix + images.get(i).getName());
                             photoTable.setPlaceID(vid2);
+                            photoTable.setPhotoDate(newDateString);
 
 
                             DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,10 +27,12 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
     List<PhotoTable> photoTables;
     Context context;
     boolean isImageFitToScreen;
+    String TAG="PhotoAdapter";
 
     public PhotoAdapter(List<PhotoTable> photoTables, Context context) {
         this.photoTables = photoTables;
         this.context = context;
+        Log.e(TAG, "PhotoAdapter: "+photoTables.size() );
     }
 
     @NonNull
@@ -43,14 +46,15 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
         final PhotoTable h = photoTables.get(position);
         getOnePhotos(h.getPhotoName(), context, holder.imageView);
+        Log.e(TAG, "onBindViewHolder: "+h.getPhotoName() );
 
         holder.photoName.setText(h.getPhotoName());
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new PhotoFullPopupWindow(context, R.layout.popup_photo_full, v,
+               /* new PhotoFullPopupWindow(context, R.layout.popup_photo_full, v,
                         Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + h.getPhotoName(),
-                        null);
+                        null);*/
             }
         });
     }

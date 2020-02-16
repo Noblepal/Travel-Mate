@@ -6,4 +6,11 @@
     android:layout_height="match_parent"
     tools:context=".DetailGalleryActivity">
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/photo_Gal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_photo" />
 </androidx.constraintlayout.widget.ConstraintLayout>
