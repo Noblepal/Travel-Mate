@@ -1,4 +1,4 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -6,6 +6,7 @@ import android.util.Log;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.MapStyleOptions;
+import com.trichain.omiinad.R;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

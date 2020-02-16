@@ -10,7 +10,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
+<<<<<<< HEAD
         android:id="@+id/title_sort"
+=======
+>>>>>>> unpushed
         android:text="Sort By" />
 
     <RadioGroup
@@ -37,7 +40,11 @@
             android:id="@+id/rvTag"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:text="Place" />
+=======
+            android:text="Tag" />
+>>>>>>> unpushed
 
     </RadioGroup>
 
@@ -85,5 +92,15 @@
             android:text="Descending" />
     </RadioGroup>
 
+<<<<<<< HEAD
+=======
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end"
+        android:layout_marginEnd="16dp"
+        android:text="Sort" />
+>>>>>>> unpushed
 
 </LinearLayout>

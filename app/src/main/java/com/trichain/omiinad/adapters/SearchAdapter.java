@@ -16,20 +16,20 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.activities.ViewPlaceActivity;
+import com.trichain.omiinad.ViewPlaceActivity;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
-import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.roomDB.DatabaseClient;
 
 import java.util.List;
 
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
-public class EventAdapter2 extends RecyclerView.Adapter<EventAdapter2.HolidayViewHolder> {
+public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayViewHolder> {
 
     List<VisitedPlaceTable> visitedPlaceTableList;
     Context context;
 
-    public EventAdapter2(List<VisitedPlaceTable> visitedPlaceTableList, Context context) {
+    public SearchAdapter(List<VisitedPlaceTable> visitedPlaceTableList, Context context) {
         this.visitedPlaceTableList = visitedPlaceTableList;
         this.context = context;
     }
@@ -37,7 +37,7 @@ public class EventAdapter2 extends RecyclerView.Adapter<EventAdapter2.HolidayVie
     @NonNull
     @Override
     public HolidayViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(context).inflate(R.layout.item_list_content2, parent, false);
+        View v = LayoutInflater.from(context).inflate(R.layout.item_list_content, parent, false);
         return new HolidayViewHolder(v);
     }
 
@@ -46,6 +46,7 @@ public class EventAdapter2 extends RecyclerView.Adapter<EventAdapter2.HolidayVie
         final VisitedPlaceTable h = visitedPlaceTableList.get(position);
         holder.tvName.setText(h.getName());
         holder.id_date.setText(h.getVisitDate());
+        holder.id_day_m_year.setText(h.getVisitDate());
 //        holder.id_people.setText(getPeople(position));
         getPeople(h.getId(), context, holder.id_people);
         getPhotos(h.getId(), context, holder.id_photos);
@@ -83,7 +84,8 @@ public class EventAdapter2 extends RecyclerView.Adapter<EventAdapter2.HolidayVie
             imageView = itemView.findViewById(R.id.imageNews);
             id_photos = itemView.findViewById(R.id.id_photos);
             id_people = itemView.findViewById(R.id.id_people);
-            id_date = itemView.findViewById(R.id.id_day_m_year);
+            id_day_m_year = itemView.findViewById(R.id.id_day_m_year);
+            id_date = itemView.findViewById(R.id.id_date);
             one_place = itemView.findViewById(R.id.one_place);
         }
     }

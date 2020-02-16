@@ -1,8 +1,10 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import com.trichain.omiinad.R;
 
 public class MainActivity extends AppCompatActivity {
 

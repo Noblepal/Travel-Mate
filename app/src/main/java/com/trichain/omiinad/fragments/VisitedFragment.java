@@ -1,7 +1,6 @@
 package com.trichain.omiinad.fragments;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -30,11 +28,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 
 import java.util.List;
 
-import static com.trichain.omiinad.Utils.setGoogleMapStyle;
+import static com.trichain.omiinad.utils.Utils.setGoogleMapStyle;
 
 public class VisitedFragment extends Fragment {
 

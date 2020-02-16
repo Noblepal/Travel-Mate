@@ -1,4 +1,4 @@
-package com.trichain.omiinad.roomDB;
+package com.trichain.omiinad.room;
 
 import android.content.Context;
 

@@ -1,4 +1,4 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.activities;
 
 import android.Manifest;
 import android.content.DialogInterface;
@@ -20,9 +20,10 @@ import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
+import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.HolidayTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
-import com.trichain.omiinad.roomDB.OnViewSelected;
+import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.room.OnViewSelected;
 import com.trichain.omiinad.adapters.SectionsPagerAdapter;
 
 import safety.com.br.android_shake_detector.core.ShakeCallback;

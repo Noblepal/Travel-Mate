@@ -1,4 +1,4 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.activities;
 
 import android.Manifest;
 import android.content.Context;
@@ -16,10 +16,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.InputType;
+import android.os.Looper;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,15 +30,18 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatEditText;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.features.ReturnMode;
-import com.esafirm.imagepicker.model.Image;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -49,20 +53,25 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipDrawable;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.textfield.TextInputEditText;
+import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -71,9 +80,9 @@ import safety.com.br.android_shake_detector.core.ShakeCallback;
 import safety.com.br.android_shake_detector.core.ShakeDetector;
 import safety.com.br.android_shake_detector.core.ShakeOptions;
 
-import static com.trichain.omiinad.Utils.setGoogleMapStyle;
+import static com.trichain.omiinad.utils.Utils.setGoogleMapStyle;
 
-public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCallback,
+public class CreateEntryActivity extends AppCompatActivity implements OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener, GoogleMap.OnMapLongClickListener {
@@ -89,21 +98,23 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     Location mLastLocation;
     Marker mCurrLocationMarker;
     int holiday, people1, place;
-    List<Image> images;
-    ArrayList<String> names = new ArrayList<String>();
-    ArrayList<String> names2 = new ArrayList<String>();
+    List<String> peopleNames = new ArrayList<>();
+    ArrayList<String> name2 = new ArrayList<>();
+    List<com.esafirm.imagepicker.model.Image> images;
     int strtext;
-    String people = "";
-    String date, time;
-    ShakeDetector shakeDetector;
+    private AppCompatEditText personNames;
+    private int SpannedLength = 0, chipLength = 4;
+    String[] ts;
+    boolean isLocationFound=false;
+    FusedLocationProviderClient mFusedLocationClient;
 
+    ShakeDetector shakeDetector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_entry);
-        holiday = getIntent().getIntExtra("holiday", 0);
-        place = getIntent().getIntExtra("place", 0);
-        people1 = 0;
+        setContentView(R.layout.activity_create_entry);
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        checkLocationPermission();
 
         //sensors
         ShakeOptions options = new ShakeOptions()
@@ -125,16 +136,28 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
         //sesor
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            holiday = getIntent().getIntExtra("holiday", 0);
+            place = getIntent().getIntExtra("place", 0);
+        }
+
+        Log.d(TAG, "onCreate: holiday -> " + holiday);
+        people1 = 0;
+        ((TextView) findViewById(R.id.id_date)).setText(getDateOnly());
+        ((TextView) findViewById(R.id.id_day)).setText(getDayMonthYear());
+        ((TextView) findViewById(R.id.tv_time1)).setText(getTimeOnly());
+
         ((View) findViewById(R.id.back_btn2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditEntryActivity.super.onBackPressed();
+                CreateEntryActivity.super.onBackPressed();
             }
         });
         ((ImageButton) findViewById(R.id.img_add_photo)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ImagePicker.create(EditEntryActivity.this)
+                ImagePicker.create(CreateEntryActivity.this)
                         .returnMode(ReturnMode.CAMERA_ONLY)
                         .folderMode(true) // folder mode (false by default)
                         .toolbarFolderTitle("Folder") // folder selection title
@@ -150,23 +173,25 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
         ((ImageButton) findViewById(R.id.img_add_members)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(EditEntryActivity.this);
-                builder.setTitle("Enter the persons peopleNames");
-
-                // Set up the input
-                final EditText input = new EditText(EditEntryActivity.this);
-                // Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                builder.setView(input);
+                AlertDialog.Builder builder = new AlertDialog.Builder(CreateEntryActivity.this);
+                builder.setTitle("Enter peopleNames of person");
+                View rootView = LayoutInflater.from(CreateEntryActivity.this).inflate(R.layout.dialog_add_people, null);
+                personNames = rootView.findViewById(R.id.personName);
+                builder.setView(rootView);
 
                 // Set up the buttons
                 builder.setPositiveButton("add", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        names.add(input.getText().toString());
-                        names2.add(input.getText().toString());
-                        people1 = names.size();
-                        ((TextView) findViewById(R.id.people)).setText(String.valueOf(people1));
+                        String[] names = personNames.getText().toString().split(",");
+                        peopleNames.addAll(Arrays.asList(names));
+                        name2.addAll(Arrays.asList(names));
+                        if (peopleNames.size() > 0) {
+                            people1 = peopleNames.size();
+                            ((TextView) findViewById(R.id.people)).setText(String.valueOf(people1));
+                        } else {
+                            ((TextView) findViewById(R.id.people)).setText(0);
+                        }
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -177,9 +202,24 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                 });
 
                 builder.show();
-
-               /*
-                ImageButton ok_now=findViewById(R.id.ok_now);
+//                mFusedLocationClient.getLastLocation().addOnCompleteListener(
+//                        task -> {
+//                            Log.e(TAG, "showAcquiringLocationDialog: Task starting" );
+//                            Location location = task.getResult();
+//                            if (location == null) {
+//                                requestNewLocationData();
+//                                isLocationFound = false;
+//                                Log.e(TAG, "showAcquiringLocationDialog: Task false" );
+//                            } else {
+//                                latitude = location.getLatitude();
+//                                longitude = location.getLongitude();
+//
+//                            }
+//
+//                            Log.e(TAG, "showAcquiringLocationDialog: Task end" );
+//                        }
+//                );
+                /*ImageButton ok_now=findViewById(R.id.ok_now);
                 final NumberPicker numberPicker = (NumberPicker) findViewById(R.id.dialog_number_picker);
                 numberPicker.setMaxValue(50);
                 numberPicker.setMinValue(1);
@@ -227,7 +267,7 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
             }
         });
         try {
-            MapsInitializer.initialize(EditEntryActivity.this.getApplicationContext());
+            MapsInitializer.initialize(CreateEntryActivity.this.getApplicationContext());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -236,160 +276,78 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
 
         mMapView.onResume(); // needed to get the map to display immediately
 
-
-        if (place != 0) {
-            getHolidayId();
-            getPeople();
-        }
-    }
-
-    public void setGoogleMap(Double latitude, Double longitude, String name) {
-
         mMapView.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap mMap) {
                 googleMap = mMap;
 
-                setGoogleMapStyle(EditEntryActivity.this, googleMap);
+                setGoogleMapStyle(CreateEntryActivity.this, googleMap);
 
                 // For showing a move to my location button
-                //googleMap.setMyLocationEnabled(true);
+                // googleMap.setMyLocationEnabled(true);
 
                 // For dropping a marker at a point on the Map
-                LatLng sydney = new LatLng(latitude, longitude);
-                googleMap.addMarker(new MarkerOptions().position(sydney).title(name).snippet("You visited this place"));
+                if (latitude!=null){
 
-                // For zooming automatically to the location of the marker
-                CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-                //Initialize Google Play Services
-                if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ContextCompat.checkSelfPermission(EditEntryActivity.this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
-                        //Location Permission already granted
+                    LatLng sydney = new LatLng(latitude, longitude);
+                    googleMap.addMarker(new MarkerOptions().position(sydney).title("Current").snippet("Location"));
+
+                    // For zooming automatically to the location of the marker
+                    CameraPosition cameraPosition = new CameraPosition.Builder().target(sydney).zoom(12).build();
+                    googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+                    //Initialize Google Play Services
+                    if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        if (ContextCompat.checkSelfPermission(CreateEntryActivity.this,
+                                Manifest.permission.ACCESS_FINE_LOCATION)
+                                == PackageManager.PERMISSION_GRANTED) {
+                            //Location Permission already granted
+                            buildGoogleApiClient();
+                            googleMap.setMyLocationEnabled(true);
+                        } else {
+                            //Request Location Permission
+                            checkLocationPermission();
+                        }
+                    } else {
                         buildGoogleApiClient();
                         googleMap.setMyLocationEnabled(true);
-                    } else {
-                        //Request Location Permission
-                        checkLocationPermission();
                     }
-                } else {
-                    buildGoogleApiClient();
-                    googleMap.setMyLocationEnabled(true);
+
                 }
                 googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
                     public void onMapLongClick(LatLng latLng) {
-                        googleMap.addMarker(new MarkerOptions().position(latLng).title("Marker Title").snippet("Marker Description"));
+                        Log.e(TAG, "onMapLongClick: " );
+                        googleMap.addMarker(new MarkerOptions().position(latLng).title("Selected").snippet("Location"));
 
+                        // For zooming automatically to the location of the marker
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(12).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+                        latitude = latLng.latitude;
+                        longitude = latLng.longitude;
                     }
                 });
             }
         });
+
     }
 
+    private void requestNewLocationData() {
+        LocationRequest mLocationRequest = new LocationRequest();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        mLocationRequest.setInterval(0);
+        mLocationRequest.setFastestInterval(0);
+        mLocationRequest.setNumUpdates(1);
 
-    private void getPeople() {
-        class GetPeople extends AsyncTask<Void, Void, List<PeopleTable>> {
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        mFusedLocationClient.requestLocationUpdates(
+                mLocationRequest, mLocationCallback,
+                Looper.myLooper()
+        );
 
-            @Override
-            protected List<PeopleTable> doInBackground(Void... voids) {
-                List<PeopleTable> peopleTables = DatabaseClient
-                        .getInstance(EditEntryActivity.this)
-                        .getAppDatabase()
-                        .peopleDao()
-                        .getAllofEventPeople(place);
-                return peopleTables;
-            }
-
-            @Override
-            protected void onPostExecute(List<PeopleTable> peopleTables) {
-                super.onPostExecute(peopleTables);
-                for (int i = 0; i < peopleTables.size(); i++) {
-                    Log.e(TAG, "getPersonName: " + peopleTables.get(i).getPersonName());
-                    if (names.size() == 0) {
-                        names.add(peopleTables.get(i).getPersonName());
-
-                        people = peopleTables.get(i).getPersonName();
-                    } else {
-                        names.add(peopleTables.get(i).getPersonName());
-                        people = people + ", " + peopleTables.get(i).getPersonName();
-                    }
-                }
-                EditEntryActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ((TextView) findViewById(R.id.people)).setText(String.valueOf(names.size()));
-                    }
-                });
-
-            }
-        }
-
-        GetPeople gh = new GetPeople();
-        gh.execute();
-    }
-
-    private void getHolidayId() {
-        class GetHoliday extends AsyncTask<Void, Void, VisitedPlaceTable> {
-
-            @Override
-            protected VisitedPlaceTable doInBackground(Void... voids) {
-                VisitedPlaceTable visitedPlaceTables = DatabaseClient
-                        .getInstance(EditEntryActivity.this)
-                        .getAppDatabase()
-                        .visitedPlaceDao()
-                        .getHolidayIdofplace(place);
-                return visitedPlaceTables;
-            }
-
-            @Override
-            protected void onPostExecute(VisitedPlaceTable visitedPlaceTables) {
-                super.onPostExecute(visitedPlaceTables);
-                holiday = visitedPlaceTables.getHolidayID();
-                EditEntryActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ((TextView) findViewById(R.id.id_date)).setText(getDateOnly(visitedPlaceTables.getVisitDate()));
-                            ((TextView) findViewById(R.id.id_day)).setText(getDayMonthYear(visitedPlaceTables.getVisitDate()));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        ((com.google.android.material.textfield.TextInputEditText) findViewById(R.id.id_title)).setText(visitedPlaceTables.getName());
-                        /*((View) findViewById(R.id.hide_me)).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(EditEntryActivity.this, EditEntryActivity.class);
-                                intent.putExtra("place",place);
-                                intent.putExtra("holiday",holiday);
-                                startActivity(intent);
-                            }
-                        });*/
-                        ((TextView) findViewById(R.id.tv_time1)).setText(visitedPlaceTables.getVisitTime());
-                        ((com.google.android.material.textfield.TextInputEditText) findViewById(R.id.id_msg)).setText(visitedPlaceTables.getText());
-                        latitude = visitedPlaceTables.getLatitude();
-                        longitude = visitedPlaceTables.getLongitude();
-
-                        date = visitedPlaceTables.getVisitDate();
-                        time = visitedPlaceTables.getVisitTime();
-                        setGoogleMap(visitedPlaceTables.getLatitude(), visitedPlaceTables.getLongitude(), visitedPlaceTables.getName());
-                    }
-                });
-
-            }
-        }
-
-        GetHoliday gh = new GetHoliday();
-        gh.execute();
     }
 
     public void trySave(View v) {
-        TextView img_add_photo_no, id_date, id_day, tv_time1, people;
+        TextView img_add_photo_no, id_date, id_day, tv_time1, people, peopleErrorMessage;
 
         TextInputEditText id_title, id_msg;
         img_add_photo_no = findViewById(R.id.img_add_photo_no);
@@ -399,19 +357,26 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
         id_title = findViewById(R.id.id_title);
         id_msg = findViewById(R.id.id_msg);
         people = findViewById(R.id.people);
+        peopleErrorMessage = findViewById(R.id.peopleErrorMessage);
 
-        if (id_title.getText().toString().contentEquals("")) {
+        if (img_add_photo_no.getText().toString().contentEquals("0")) {
+            Toast.makeText(this, "Kindly add some photos", Toast.LENGTH_SHORT).show();
+        } else if (id_title.getText().toString().contentEquals("")) {
             Toast.makeText(this, "Please fill the title", Toast.LENGTH_SHORT).show();
         } else if (id_msg.getText().toString().contentEquals("")) {
             Toast.makeText(this, "Please add some details", Toast.LENGTH_SHORT).show();
         } else if (holiday == 0) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
-        } else if (names.size() == 0) {
+        } else if (longitude==null){
+
+            Toast.makeText(this, "Locations not set", Toast.LENGTH_SHORT).show();
+        }else if (people1 == 0) {
+            peopleErrorMessage.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Select Number of people", Toast.LENGTH_SHORT).show();
 
         } else {
-
+            peopleErrorMessage.setVisibility(View.GONE);
             String id_dates = id_date.getText().toString();
             String id_days = id_day.getText().toString();
             String tv_time1s = tv_time1.getText().toString();
@@ -422,10 +387,8 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
             Calendar c = Calendar.getInstance();
             SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             SimpleDateFormat df2 = new SimpleDateFormat("HH:mm:ss");
-//            String formattedDate = df.format(c.getTime());
-//            String formattedDate2 = df2.format(c.getTime());
-            String formattedDate = date;
-            String formattedDate2 = time;
+            String formattedDate = df.format(c.getTime());
+            String formattedDate2 = df2.format(c.getTime());
 
             class SaveTask extends AsyncTask<Void, Void, Void> {
 
@@ -440,55 +403,57 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                     visitedPlaceTable.setLatitude(latitude);
                     visitedPlaceTable.setLongitude(longitude);
                     visitedPlaceTable.setText(id_msgs);
-                    visitedPlaceTable.setId(place);
                     visitedPlaceTable.setVisitDate(formattedDate);
                     visitedPlaceTable.setVisitTime(formattedDate2);
 
 
-                    DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                    long vid = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                             .visitedPlaceDao()
-                            .update(visitedPlaceTable);
-                    int vid2 = ((int) place);
-
-                    if (images != null) {
-                        for (int i = 0; i < images.size(); i++) {
-                            System.out.println(images.get(i));
-                            Log.e(TAG, "doInBackground: " + images.get(i).getPath());
-
-                            Date date = c.getTime();
-                            String newDateString = new SimpleDateFormat("dd MMM yyyy").format(date);
-                            Uri imageUri = Uri.parse(images.get(i).getPath());
-                            Bitmap bitmap = null;
-                            try {
-                                String fileSuffix = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+                            .insert(visitedPlaceTable);
+                    int vid2 = ((int) vid);
 
 
-                                File source1 = new File(images.get(i).getPath());
-                                Log.e(TAG, "doInBackground: Path :" + images.get(i).getPath());
-                                File destination1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + fileSuffix + images.get(i).getName());
-                                copy(source1, destination1);
-
-                                PhotoTable photoTable = new PhotoTable();
-                                photoTable.setHolidayID(holiday);
-                                photoTable.setPhotoName(fileSuffix + images.get(i).getName());
-                                photoTable.setPlaceID(vid2);
-                                photoTable.setPhotoDate(newDateString);
+                    for (int i = 0; i < images.size(); i++) {
+                        System.out.println(images.get(i));
+                        Log.e(TAG, "doInBackground: " + images.get(i).getPath());
+                        Calendar c = Calendar.getInstance();
 
 
-                                DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
-                                        .photoDao()
-                                        .insert(photoTable);
-                                Log.e(TAG, "doInBackground: photos" + i);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
+                        Date date = c.getTime();
+                        String newDateString = new SimpleDateFormat("dd MMM yyyy").format(date);
+
+
+                        Uri imageUri = Uri.parse(images.get(i).getPath());
+                        Bitmap bitmap = null;
+                        try {
+                            String fileSuffix = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
+
+
+                            File source1 = new File(images.get(i).getPath());
+                            Log.e(TAG, "doInBackground: Path :" + images.get(i).getPath());
+                            File destination1 = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + fileSuffix + images.get(i).getName());
+                            copy(source1, destination1);
+
+                            PhotoTable photoTable = new PhotoTable();
+                            photoTable.setHolidayID(holiday);
+                            photoTable.setPhotoName(fileSuffix + images.get(i).getName());
+                            photoTable.setPlaceID(vid2);
+                            photoTable.setPhotoDate(newDateString);
+
+
+                            DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
+                                    .photoDao()
+                                    .insert(photoTable);
+                            Log.e(TAG, "doInBackground: photos" + i);
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
                     }
-                    for (int i = 0; i < names2.size(); i++) {
+                    for (int i = 0; i < peopleNames.size(); i++) {
                         PeopleTable peopleTable = new PeopleTable();
                         peopleTable.setHolidayID(holiday);
                         peopleTable.setPlaceID(vid2);
-                        peopleTable.setPersonName(names2.get(i));
+                        peopleTable.setPersonName(peopleNames.get(i));
                         DatabaseClient.getInstance(getApplicationContext()).getAppDatabase()
                                 .peopleDao()
                                 .insert(peopleTable);
@@ -592,15 +557,15 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     protected synchronized void buildGoogleApiClient() {
-        mGoogleApiClient = new GoogleApiClient.Builder(EditEntryActivity.this)
+        mGoogleApiClient = new GoogleApiClient.Builder(CreateEntryActivity.this)
                 .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        LocationManager locationManager =  (LocationManager) EditEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager locationManager = (LocationManager) CreateEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
                         Criteria criteria = new Criteria();
 
-                        if (EditEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && EditEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        if (CreateEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && CreateEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    Activity#requestPermissions
                             // here to request the missing permissions, and then overriding
@@ -610,15 +575,9 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                             // for Activity#requestPermissions for more details.
                             return;
                         } else {
-                            Location location = null;
-                            if (locationManager != null) {
-//                                location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-//                                if (location.hasAltitude()){
-////                                    latitude = location.getLatitude();
-////                                    longitude = location.getLongitude();
-//                                    Log.e(TAG, "onConnected: " + latitude);
-//                                }
-                            }
+                            Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+
+                            Log.e(TAG, "onConnected: " + latitude);
                         }
                     }
 
@@ -641,24 +600,24 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     private void checkLocationPermission() {
-        if (ContextCompat.checkSelfPermission(EditEntryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+        if (ContextCompat.checkSelfPermission(CreateEntryActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
 
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(EditEntryActivity.this,
+            if (ActivityCompat.shouldShowRequestPermissionRationale(CreateEntryActivity.this,
                     Manifest.permission.ACCESS_FINE_LOCATION)) {
 
                 // Show an explanation to the user *asynchronously* -- don't block
                 // this thread waiting for the user's response! After the user
                 // sees the explanation, try again to request the permission.
-                new AlertDialog.Builder(EditEntryActivity.this)
+                new AlertDialog.Builder(CreateEntryActivity.this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission, please accept to use location functionality")
                         .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 //Prompt the user once explanation has been shown
-                                ActivityCompat.requestPermissions(EditEntryActivity.this,
+                                ActivityCompat.requestPermissions(CreateEntryActivity.this,
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                                         MY_PERMISSIONS_REQUEST_LOCATION);
                             }
@@ -669,16 +628,38 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
 
             } else {
                 // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(EditEntryActivity.this,
+                ActivityCompat.requestPermissions(CreateEntryActivity.this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
+        }else {
+            mFusedLocationClient.getLastLocation().addOnCompleteListener(
+                    task -> {
+                        Log.e(TAG, "showAcquiringLocationDialog: Task starting" );
+                        Location location = task.getResult();
+                        if (location == null) {
+                            requestNewLocationData();
+                            isLocationFound = false;
+                            Log.e(TAG, "showAcquiringLocationDialog: Task false" );
+                        } else {
+                            latitude=location.getLatitude();
+                            longitude=location.getLongitude();
+                            Log.e(TAG, "showAcquiringLocationDialog: Task true" );
+                        }
+
+                        Log.e(TAG, "showAcquiringLocationDialog: Task end" );
+                    }
+            );
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode,
+        permissions,  grantResults);
+
+        Log.d(TAG, "Granted. Start getting the location information 1");
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
@@ -687,22 +668,18 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
 
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
-                    if (ContextCompat.checkSelfPermission(EditEntryActivity.this,
-                            Manifest.permission.ACCESS_FINE_LOCATION)
-                            == PackageManager.PERMISSION_GRANTED) {
 
-                        if (mGoogleApiClient == null) {
-                            buildGoogleApiClient();
-                        }
-                        googleMap.setMyLocationEnabled(true);
-
-                    }
+                    Intent intent= new Intent(CreateEntryActivity.this,CreateEntryActivity.class);
+                    intent.putExtra("holiday",holiday);
+                    intent.putExtra("place",place);
+                    startActivity(intent);
+                    finish();
 
                 } else {
-
+                        finish();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
-                    Toast.makeText(EditEntryActivity.this, "permission denied", Toast.LENGTH_LONG).show();
+                    Toast.makeText(CreateEntryActivity.this, "permission denied", Toast.LENGTH_LONG).show();
                 }
                 return;
             }
@@ -721,14 +698,22 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
         return formattedDate;
     }
 
-    private String getDayMonthYear(String a) throws ParseException {
-        Date df = new SimpleDateFormat("E\nMMM yyyy").parse(a);
-        return df.toString();
+    private String getDayMonthYear() {
+        Calendar c = Calendar.getInstance();
+
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat df = new SimpleDateFormat("E\nMMM yyyy");
+        String formattedDate = df.format(c.getTime());
+        return formattedDate;
     }
 
-    private String getDateOnly(String a) throws ParseException {
-        Date date1 = new SimpleDateFormat("dd/MM/yyyy").parse(a);
-        return date1.toString();
+    private String getDateOnly() {
+        Calendar c = Calendar.getInstance();
+
+//        SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat df = new SimpleDateFormat("dd");
+        String formattedDate = df.format(c.getTime());
+        return formattedDate;
     }
 
     @Override
@@ -758,8 +743,29 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                 .title(latLng.toString())
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-        Toast.makeText(EditEntryActivity.this,
+        Toast.makeText(CreateEntryActivity.this,
                 "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
                 .show();
     }
+
+    private Chip getChip(final ChipGroup entryChipGroup, String text) {
+        final Chip chip = new Chip(this);
+        chip.setChipDrawable(ChipDrawable.createFromResource(this, R.xml.chip));
+        int paddingDp = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 10,
+                getResources().getDisplayMetrics()
+        );
+        chip.setPadding(paddingDp, paddingDp, paddingDp, paddingDp);
+        chip.setText(text);
+        chip.setOnCloseIconClickListener(v -> entryChipGroup.removeView(chip));
+        return chip;
+    }
+    private LocationCallback mLocationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            Location location = locationResult.getLastLocation();
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+        }
+    };
 }

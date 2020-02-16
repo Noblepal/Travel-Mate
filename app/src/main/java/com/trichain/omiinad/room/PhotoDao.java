@@ -1,4 +1,4 @@
-package com.trichain.omiinad.roomDB;
+package com.trichain.omiinad.room;
 
 import androidx.room.Dao;
 import androidx.room.Delete;

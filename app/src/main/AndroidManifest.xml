@@ -8,10 +8,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
-    <uses-feature
-        android:name="android.hardware.sensor.accelerometer"
-        android:required="true" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -21,10 +18,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".DetailGalleryActivity"></activity>
         <activity android:name=".ViewPlaceActivity" />
         <activity android:name=".CreateEntryActivity" />
         <activity android:name=".EditEntryActivity" />
+
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

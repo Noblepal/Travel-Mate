@@ -17,10 +17,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.AddHolidayActivity;
+import com.trichain.omiinad.activities.AddHolidayActivity;
 import com.trichain.omiinad.entities.HolidayTable;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 import com.trichain.omiinad.adapters.HolidayAdapter;
 
 import java.util.List;

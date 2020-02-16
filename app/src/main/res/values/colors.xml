@@ -15,4 +15,5 @@
     <color name="veryLightSkyBlue">#26c3d6</color>
     <color name="almostVeryLightSkyBlue">#00A0B6</color>
     <color name="black_overlay">#66000000</color>
+    <color name="black_overlay_darker">#88000000</color>
 </resources>

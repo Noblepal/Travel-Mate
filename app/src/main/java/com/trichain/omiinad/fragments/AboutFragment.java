@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.roomDB.OnViewSelected;
+import com.trichain.omiinad.room.OnViewSelected;
 
 /**
  * A simple {@link Fragment} subclass.
