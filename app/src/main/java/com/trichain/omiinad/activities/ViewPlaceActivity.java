@@ -6,7 +6,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.PixelFormat;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,9 +16,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -56,11 +54,11 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.synnapps.carouselview.CarouselView;
 import com.synnapps.carouselview.ImageListener;
 import com.trichain.omiinad.R;
-import com.trichain.omiinad.utils.SendFile;
 import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.SendFile;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -97,11 +95,12 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     private int place, people1, holiday;
     private List<Image> images;
     private int strtext;
-    private CarouselView carouselView;
+    private CarouselView carouselView, cV;
+    private ImageButton ib2_close;
     private List<PhotoTable> photoTables2;
     private String people = "";
-    private WindowManager windowManager;
-    private RelativeLayout rl;
+    private FrameLayout mainLayout;
+    private RelativeLayout secondLayout;
     private ShakeDetector shakeDetector;
 
     @Override
@@ -110,6 +109,9 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         setContentView(R.layout.activity_view_place);
         place = getIntent().getIntExtra("place_id", 0);
         people1 = 0;
+
+        mainLayout = findViewById(R.id.rootLayoutFrame);
+        secondLayout = findViewById(R.id.rl2_custom_layout);
 
         //Shake listener
         ShakeOptions options = new ShakeOptions()
@@ -305,10 +307,13 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
             protected void onPostExecute(List<PhotoTable> photoTables) {
                 super.onPostExecute(photoTables);
                 photoTables2 = photoTables;
-                carouselView = (CarouselView) findViewById(R.id.carouselView);
+                carouselView = findViewById(R.id.carouselView);
                 carouselView.setImageListener(imageListener);
-                carouselView.setPageCount(photoTables.size());//sampleImages.length
-                findViewById(R.id.imgViewFullScreenPhoto).setOnClickListener(v -> showCarouselInFullScreen());
+                carouselView.setPageCount(photoTables.size());
+
+                findViewById(R.id.imgViewFullScreenPhoto).setOnClickListener(v -> {
+                    showCarouselInFullScreen();
+                });
 
                 for (int i = 0; i < photoTables.size(); i++) {
                     Log.e(TAG, "doInBackground: " + photoTables.get(i).getPhotoName());
@@ -321,62 +326,29 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     }
 
     public void showCarouselInFullScreen() {
-
-        CarouselView carouselView = findViewById(R.id.carouselView);
-        /*((ImageView) findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView) v).getDrawable());
-        ((ImageView)findViewById(R.id.hide_this_image)).setImageDrawable(((ImageView)carouselView.getFocusedChild()).getDrawable());
-        ((ImageView) findViewById(R.id.hide_this_image)).setVisibility(View.VISIBLE);
-        ((ImageView) findViewById(R.id.hide_this_image_close)).setVisibility(View.VISIBLE);
-        ((ImageView) findViewById(R.id.hide_this_image_close)).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ImageView) findViewById(R.id.hide_this_image_close)).setVisibility(View.GONE);
-                ((ImageView) findViewById(R.id.hide_this_image)).setVisibility(View.GONE);
-            }
-        });*/
-
-        windowManager = (WindowManager) (ViewPlaceActivity.this).getSystemService(Context.WINDOW_SERVICE);
-        final WindowManager.LayoutParams params = new WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_TOAST,
-                WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN,
-
-                PixelFormat.OPAQUE);
-        params.windowAnimations = R.style.WindowAnimation;
-
-        LayoutInflater inflater = (LayoutInflater) getSystemService(LAYOUT_INFLATER_SERVICE);
-        rl = (RelativeLayout) inflater.inflate(R.layout.full_screen_carousel, null);
-        ImageButton ib2_close = rl.findViewById(R.id.ib2_close);
-
-
-        CarouselView cV = rl.findViewById(R.id.carouselView2);
+        cV = findViewById(R.id.carouselView2);
         cV.setImageListener(imageListener);
         cV.setPageCount(photoTables2.size());
         cV.setCurrentItem(carouselView.getCurrentItem());
-
-        windowManager.addView(rl, params);
-        ib2_close.setOnClickListener(v3 -> windowManager.removeView(rl));
-
+        ib2_close = findViewById(R.id.ib2_close_again);
+        ib2_close.setOnClickListener(v3 -> showMainView());
+        showFullCarouselView();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
-        try {
-            windowManager.removeView(rl);
-        } catch (Exception e) {
-            Log.i(TAG, "onBackPressed: view already removed");
-        }
+    private void showFullCarouselView() {
+        secondLayout.setVisibility(View.VISIBLE);
+    }
+
+    private void showMainView() {
+        secondLayout.setVisibility(View.GONE);
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        try {
-            windowManager.removeView(rl);
-        } catch (Exception e) {
-            Log.i(TAG, "onBackPressed: view already removed");
+        if (secondLayout.getVisibility() == View.VISIBLE) {
+            showMainView();
+        } else {
+            super.onBackPressed();
         }
     }
 
