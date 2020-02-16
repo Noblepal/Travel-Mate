@@ -1,4 +1,4 @@
-package com.trichain.omiinad.util;
+package com.trichain.omiinad.utils;
 
 import android.content.Context;
 import android.view.GestureDetector;

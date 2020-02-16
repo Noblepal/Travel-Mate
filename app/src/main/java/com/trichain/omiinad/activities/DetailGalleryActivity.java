@@ -1,4 +1,4 @@
-package com.trichain.omiinad;
+package com.trichain.omiinad.activities;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.PhotoAdapter;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.room.DatabaseClient;

@@ -359,8 +359,8 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
             String filename = photoTables2.get(position).getPhotoName();
             Glide.with(ViewPlaceActivity.this)
                     .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
-                    .fallback(R.drawable.japan)
-                    .placeholder(R.drawable.ic_landscape)
+                    .fallback(R.drawable.landscape)
+                    .placeholder(R.drawable.landscape)
                     .transition(DrawableTransitionOptions.withCrossFade(500))
                     .into(imageView);
             imageView.setOnClickListener(new View.OnClickListener() {

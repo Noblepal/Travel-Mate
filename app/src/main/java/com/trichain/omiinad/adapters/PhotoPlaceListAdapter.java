@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.DetailGalleryActivity;
+import com.trichain.omiinad.activities.DetailGalleryActivity;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;

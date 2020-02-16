@@ -22,12 +22,12 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.trichain.omiinad.DetailGalleryActivity;
+import com.trichain.omiinad.activities.DetailGalleryActivity;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.PhotoGroupListAdapter;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.room.DatabaseClient;
-import com.trichain.omiinad.util.RecyclerItemClickListener;
+import com.trichain.omiinad.utils.RecyclerItemClickListener;
 
 import java.io.Serializable;
 import java.util.List;
