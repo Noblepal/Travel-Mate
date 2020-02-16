@@ -17,6 +17,11 @@ android {
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug{
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -77,4 +82,7 @@ dependencies {
 
     //shake
     implementation 'com.github.safetysystemtechnology:android-shake-detector:v1.2'
+
+    //date
+    implementation 'com.github.florent37:SingleDateAndTimePicker:v2.0.4'
 }
