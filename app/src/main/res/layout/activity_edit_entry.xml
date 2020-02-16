@@ -91,23 +91,41 @@
                 android:orientation="horizontal"
                 app:layout_constraintTop_toBottomOf="@id/toolbarEntry">
 
-                <TextView
-                    android:id="@+id/id_date"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_entry_title2"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
+                    android:visibility="gone"
                     android:layout_margin="8dp"
-                    android:text="11"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    android:textSize="30dp" />
+                    app:layout_constraintTop_toBottomOf="@id/ll_b_top">
 
-                <TextView
-                    android:id="@+id/id_day"
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/id_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:text="11" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_entry_title22"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
                     android:layout_margin="8dp"
-                    android:maxLines="2"
-                    android:text="Monday\n November 2019"
-                    android:textAppearance="?attr/textAppearanceListItem" />
+                    app:layout_constraintTop_toBottomOf="@id/ll_b_top">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/id_day"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:text="Monday\n November 2019" />
+
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -119,16 +137,27 @@
                 app:layout_constraintTop_toBottomOf="@id/ll_top">
 
 
-                <TextView
-                    android:id="@+id/tv_time1"
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/til_entry_title2222"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textAlignment="textStart"
                     android:layout_margin="8dp"
-                    android:drawableStart="@drawable/ic_access"
-                    android:drawablePadding="4dp"
-                    android:text="2:00PM"
-                    android:textAppearance="?attr/textAppearanceListItem"
-                    android:textSize="16sp" />
+                    app:layout_constraintTop_toBottomOf="@id/ll_b_top">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/tv_time1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/black"
+                        android:drawableStart="@drawable/ic_access"
+                        android:drawablePadding="4dp"
+                        android:textAppearance="?attr/textAppearanceListItem"
+                        android:textSize="16sp"
+                        android:text="2:00PM" />
+
+                </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
 
             <com.google.android.material.textfield.TextInputLayout
