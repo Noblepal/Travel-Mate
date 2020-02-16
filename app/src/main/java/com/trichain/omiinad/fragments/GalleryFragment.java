@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,6 +14,7 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -24,6 +26,7 @@ import com.trichain.omiinad.adapters.PhotoAdapter;
 import com.trichain.omiinad.adapters.PhotoPlaceListAdapter;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.util.RecyclerItemClickListener;
 
 import java.util.List;
 
@@ -145,8 +148,19 @@ public class GalleryFragment extends Fragment {
             RecyclerView recyclerView = root.findViewById(R.id.place);
             recyclerView.setVisibility(View.VISIBLE);
             recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-            PhotoPlaceListAdapter photoAdapter = new PhotoPlaceListAdapter(photoTables, getActivity(),isDate,isHoliday,isPlace,descending);
+            PhotoPlaceListAdapter photoAdapter = new PhotoPlaceListAdapter(photoTables, getActivity(),isDate,isHoliday,isPlace,descending,recyclerView);
             recyclerView.setAdapter(photoAdapter);
+            recyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(), recyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+
+                }
+
+                @Override
+                public void onLongItemClick(View view, int position) {
+
+                }
+            }));
         }
     }
 
@@ -167,7 +181,7 @@ public class GalleryFragment extends Fragment {
             super.onPostExecute(photoTables);
             RecyclerView recyclerView = root.findViewById(R.id.eventsrec);
             recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-            PhotoPlaceListAdapter photoAdapter = new PhotoPlaceListAdapter(photoTables, getActivity(),isDate,isHoliday,isPlace,descending);
+            PhotoPlaceListAdapter photoAdapter = new PhotoPlaceListAdapter(photoTables, getActivity(),isDate,isHoliday,isPlace,descending, recyclerView);
             recyclerView.setAdapter(photoAdapter);
         }
     }
@@ -189,7 +203,7 @@ public class GalleryFragment extends Fragment {
             super.onPostExecute(photoTables);
             RecyclerView recyclerView = root.findViewById(R.id.eventsrec);
             recyclerView.setLayoutManager(new GridLayoutManager(getActivity(), 2));
-            PhotoPlaceListAdapter photoAdapter = new PhotoPlaceListAdapter(photoTables, getActivity(),isDate,isHoliday,isPlace,descending);
+            PhotoPlaceListAdapter photoAdapter = new PhotoPlaceListAdapter(photoTables, getActivity(),isDate,isHoliday,isPlace,descending, recyclerView);
             recyclerView.setAdapter(photoAdapter);
         }
     }
