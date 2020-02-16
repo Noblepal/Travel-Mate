@@ -36,7 +36,7 @@ public class PhotoFullPopupWindow extends PopupWindow {
     private static PhotoFullPopupWindow instance = null;
 
 
-    public PhotoFullPopupWindow(Context ctx, int layout, View v, String imageUrl, Bitmap bitmap) {
+    public PhotoFullPopupWindow(Context ctx, String name, int layout, View v, String imageUrl, Bitmap bitmap) {
         super(((LayoutInflater) ctx.getSystemService(LAYOUT_INFLATER_SERVICE)).inflate(R.layout.popup_photo_full, null), ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -46,6 +46,12 @@ public class PhotoFullPopupWindow extends PopupWindow {
         this.mContext = ctx;
         this.view = getContentView();
         ImageButton closeButton = (ImageButton) this.view.findViewById(R.id.ib_close);
+        ImageButton sharePhoto = this.view.findViewById(R.id.imgGalleryShare);
+        sharePhoto.setOnClickListener(v12 -> {
+            SendFile sendFile = new SendFile();
+            sendFile.sendMyFile(ctx, imageUrl);
+        });
+
         setOutsideTouchable(true);
 
         setFocusable(true);

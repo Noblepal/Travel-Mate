@@ -14,10 +14,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.trichain.omiinad.utils.PhotoFullPopupWindow;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.PhotoFullPopupWindow;
 
 import java.util.List;
 
@@ -48,7 +48,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new PhotoFullPopupWindow(context, R.layout.popup_photo_full, v,
+                new PhotoFullPopupWindow(context, h.getPhotoName(), R.layout.popup_photo_full, v,
                         Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + h.getPhotoName(),
                         null);
             }

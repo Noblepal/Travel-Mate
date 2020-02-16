@@ -43,7 +43,8 @@ public class GalleryFragment extends Fragment {
             View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_filter, null);
             AlertDialog.Builder b = new AlertDialog.Builder(getContext());
             b.setView(dialogView);
-            b.show();
+            AlertDialog dialog = b.create();
+            dialog.show();
         });
 
 
