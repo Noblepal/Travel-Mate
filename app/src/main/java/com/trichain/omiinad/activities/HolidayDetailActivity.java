@@ -113,6 +113,9 @@ public class HolidayDetailActivity extends AppCompatActivity {
         });
     }
 
+    public void closeMeNow(View view){
+        finish();
+    }
     private void setImage(final int holidayid) {
         class GetHolidays extends AsyncTask<Void, Void, String> {
 

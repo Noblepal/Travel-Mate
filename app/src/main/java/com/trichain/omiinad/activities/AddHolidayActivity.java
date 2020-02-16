@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
@@ -87,6 +88,9 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
     }
 
 
+    public void closeMeNow(View view){
+        finish();
+    }
     @Override
     public void onViewSelected(String start, String stop) {
         if (!start.isEmpty()) {

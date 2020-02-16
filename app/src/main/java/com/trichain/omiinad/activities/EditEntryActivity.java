@@ -275,6 +275,9 @@ public void editDate(View v){
             }).display();
 }
 
+    public void closeMeNow(View view){
+        finish();
+    }
     public void setGoogleMap(Double latitude2, Double longitude2, String name) {
 
         mMapView.getMapAsync(new OnMapReadyCallback() {

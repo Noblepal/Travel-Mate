@@ -54,6 +54,7 @@
                         android:layout_centerVertical="true"
                         android:background="@color/transparent"
                         android:padding="16dp"
+                        android:onClick="closeMeNow"
                         android:src="@drawable/ic_keyboard_arrow" />
 
                     <TextView

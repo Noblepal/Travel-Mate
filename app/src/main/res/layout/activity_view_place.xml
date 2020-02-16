@@ -44,6 +44,8 @@
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
                             android:layout_margin="4dp"
+                            android:onClick="closeMeNow"
+                            android:padding="8dp"
                             android:background="@color/transparent"
                             android:src="@drawable/ic_keyboard_arrow" />
 
@@ -240,6 +242,7 @@
                         android:text="2:00PM"
                         android:textAppearance="?attr/textAppearanceListItem"
                         android:textSize="16sp"
+                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="@+id/ll_b_top"
                         app:layout_constraintTop_toTopOf="parent" />

@@ -3,6 +3,7 @@ package com.trichain.omiinad.activities;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -91,6 +92,9 @@ public class DetailGalleryActivity extends AppCompatActivity {
         }
     }
 
+    public void closeMeNow(View view){
+        finish();
+    }
     class GetPlacePhotos extends AsyncTask<Void, Void, List<PhotoTable>> {
 
         @Override

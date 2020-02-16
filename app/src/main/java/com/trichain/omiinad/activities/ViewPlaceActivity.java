@@ -204,6 +204,9 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
 
+    public void closeMeNow(View view){
+        finish();
+    }
     private void getPeople() {
         class GetPeople extends AsyncTask<Void, Void, List<PeopleTable>> {
 

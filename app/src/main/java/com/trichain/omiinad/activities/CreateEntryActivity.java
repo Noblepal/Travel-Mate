@@ -271,6 +271,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         mMapView = (MapView) findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
 
@@ -330,7 +331,9 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         });
 
     }
-
+    public void closeMeNow(View view){
+        finish();
+    }
     private void requestNewLocationData() {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);

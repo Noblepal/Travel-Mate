@@ -62,7 +62,7 @@ dependencies {
     testImplementation "android.arch.persistence.room:testing:$room_version"
 
     //datepicker
-    implementation 'com.archit.calendar:awesome-calendar:1.1.5'
+    implementation 'com.archit.calendar:awesome-calendar:1.1.6'
 
     //maps
     implementation 'com.google.android.gms:play-services-location:17.0.0'

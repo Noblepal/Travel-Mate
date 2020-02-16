@@ -24,6 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
+                android:onClick="closeMeNow"
                 android:background="@color/transparent"
                 android:padding="16dp"
                 android:src="@drawable/ic_keyboard_arrow" />
