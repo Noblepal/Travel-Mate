@@ -210,4 +210,10 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
         super.onActivityResult(requestCode, resultCode, data);
         Log.e(TAG, "onActivityResult: " + requestCode);
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shakeDetector.stopShakeDetector(this);
+    }
 }

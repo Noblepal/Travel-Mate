@@ -767,4 +767,10 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files);
         startActivity(intent);*/
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shakeDetector.stopShakeDetector(this);
+    }
 }

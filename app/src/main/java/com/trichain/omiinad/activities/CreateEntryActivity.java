@@ -768,4 +768,10 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
             longitude = location.getLongitude();
         }
     };
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shakeDetector.stopShakeDetector(this);
+    }
 }

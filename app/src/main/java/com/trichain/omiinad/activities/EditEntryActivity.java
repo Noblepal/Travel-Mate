@@ -763,4 +763,10 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
                 "New marker added@" + latLng.toString(), Toast.LENGTH_LONG)
                 .show();
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        shakeDetector.stopShakeDetector(this);
+    }
 }

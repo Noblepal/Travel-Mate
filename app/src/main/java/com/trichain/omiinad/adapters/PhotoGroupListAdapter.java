@@ -21,7 +21,7 @@ import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.HolidayTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
-import com.trichain.omiinad.roomDB.DatabaseClient;
+import com.trichain.omiinad.room.DatabaseClient;
 
 import java.io.Serializable;
 import java.util.List;
