@@ -56,10 +56,7 @@ public class PhotoFullPopupWindow extends PopupWindow {
         this.view = getContentView();
         ImageButton closeButton = (ImageButton) this.view.findViewById(R.id.ib_close);
         ImageButton sharePhoto = this.view.findViewById(R.id.imgGalleryShare);
-        sharePhoto.setOnClickListener(v12 -> {
-            SendFile sendFile = new SendFile();
-            sendFile.sendMyFile(ctx, imageUrl);
-        });
+
 
         setOutsideTouchable(true);
 
@@ -92,6 +89,11 @@ public class PhotoFullPopupWindow extends PopupWindow {
         carouselView.setImageListener(imageListener);
         carouselView.setPageCount(photoTable.size());
         carouselView.setCurrentItem(mPosition);
+
+        sharePhoto.setOnClickListener(v12 -> {
+            SendFile sendFile = new SendFile();
+            sendFile.sendMyFile(ctx, (Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + photoTable.get(carouselView.getCurrentItem()).getPhotoName()));
+        });
         imageView = view.findViewById(R.id.image);
         parent = (ViewGroup) imageView.getParent();
         // ImageUtils.setZoomable(imageView);
