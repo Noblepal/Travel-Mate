@@ -60,6 +60,7 @@ import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
 import com.trichain.omiinad.utils.SendFile;
+import com.trichain.omiinad.utils.Utils;
 
 import java.io.File;
 import java.io.FileInputStream;
