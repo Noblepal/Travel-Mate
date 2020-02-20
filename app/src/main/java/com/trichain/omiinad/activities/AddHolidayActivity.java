@@ -22,25 +22,21 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.adapters.SectionsPagerAdapter;
 import com.trichain.omiinad.entities.HolidayTable;
 import com.trichain.omiinad.room.DatabaseClient;
 import com.trichain.omiinad.room.OnViewSelected;
-import com.trichain.omiinad.adapters.SectionsPagerAdapter;
-
-import safety.com.br.android_shake_detector.core.ShakeCallback;
-import safety.com.br.android_shake_detector.core.ShakeDetector;
-import safety.com.br.android_shake_detector.core.ShakeOptions;
+import com.trichain.omiinad.utils.MyShakeDetector;
 
 import static com.trichain.omiinad.constants.Constant.APIKEY;
 
 public class AddHolidayActivity extends AppCompatActivity implements OnViewSelected {
     String startDate, stopDate, about, name;
     Double latitude, longitude;
-    int PERMISSION_ID=1111;
+    int PERMISSION_ID = 1111;
     String TAG = "AddHolidayActivity";
     private FloatingActionButton fabCompleteAddHoliday;
 
-    ShakeDetector shakeDetector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,32 +48,14 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
         latitude = 0.0;
         longitude = 0.0;
         about = "";
-        //sensors
-        ShakeOptions options = new ShakeOptions()
-                .background(true)
-                .interval(1000)
-                .shakeCount(2)
-                .sensibility(2.0f);
 
-        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
-            @Override
-            public void onShake() {
-                Log.e("event", "onShake");
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_HOME);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
-                    startActivity(intent);
-                }
-            }
-        });
-        //sesor
+        /*Initialize shake gesture detector*/
+        MyShakeDetector.getInstance(this).instantiateShakeDetector();
+
         // Initialize Places.
-
         Places.initialize(getApplicationContext(), APIKEY);
 
         // Create a new Places client instance.
-
         PlacesClient placesClient = Places.createClient(this);
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this, getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
@@ -88,9 +66,10 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
     }
 
 
-    public void closeMeNow(View view){
+    public void closeMeNow(View view) {
         finish();
     }
+
     @Override
     public void onViewSelected(String start, String stop) {
         if (!start.isEmpty()) {
@@ -101,6 +80,7 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
         }
         Log.e(TAG, "onViewSelected: " + start);
     }
+
     private void checkLocationPermission() {
         if (ContextCompat.checkSelfPermission(AddHolidayActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -136,6 +116,7 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
             }
         }
     }
+
     @Override
     public void onViewSelected(String name1, Double latitude1, Double longitude1) {
         Log.e(TAG, "onViewSelected: " + latitude1);
@@ -198,17 +179,19 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
                 PERMISSION_ID
         );
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == PERMISSION_ID) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 startActivity(getIntent());
-            }else {
+            } else {
                 finish();
             }
         }
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -218,6 +201,6 @@ public class AddHolidayActivity extends AppCompatActivity implements OnViewSelec
     @Override
     protected void onStop() {
         super.onStop();
-        shakeDetector.stopShakeDetector(this);
+        MyShakeDetector.getInstance(this).stopShake();
     }
 }

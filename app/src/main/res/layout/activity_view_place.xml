@@ -43,10 +43,8 @@
                             android:layout_height="wrap_content"
                             android:layout_alignParentStart="true"
                             android:layout_centerVertical="true"
-                            android:layout_margin="4dp"
-                            android:onClick="closeMeNow"
-                            android:padding="8dp"
                             android:background="@color/transparent"
+                            android:padding="16dp"
                             android:src="@drawable/ic_keyboard_arrow" />
 
                         <TextView
@@ -61,13 +59,26 @@
                             android:visibility="invisible" />
 
                         <TextView
+                            android:id="@+id/tvViewEvent"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_centerInParent="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginStart="4dp"
+                            android:layout_toEndOf="@id/back_btn2"
                             android:text="View Entry"
                             android:textColor="@color/white"
                             android:textSize="22sp"
                             android:textStyle="bold" />
+
+                        <ImageButton
+                            android:id="@+id/btnEditEntry"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:background="@color/transparent"
+                            android:padding="16dp"
+                            android:src="@drawable/ic_edit" />
 
                     </RelativeLayout>
                 </androidx.appcompat.widget.Toolbar>
@@ -242,7 +253,6 @@
                         android:text="2:00PM"
                         android:textAppearance="?attr/textAppearanceListItem"
                         android:textSize="16sp"
-                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="@+id/ll_b_top"
                         app:layout_constraintTop_toTopOf="parent" />
@@ -330,14 +340,6 @@
 
         </ScrollView>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/hide_me"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_edit" />
-
     </FrameLayout>
 
     <RelativeLayout
@@ -351,9 +353,9 @@
         <com.synnapps.carouselview.CarouselView
             android:id="@+id/carouselView2"
             android:layout_width="match_parent"
-            android:background="@drawable/slideshow_overlay"
             android:layout_height="match_parent"
-            app:strokeColor="#FF777777"/>
+            android:background="@drawable/slideshow_overlay"
+            app:strokeColor="#FF777777" />
 
         <ImageButton
             android:id="@+id/ib2_close_again"

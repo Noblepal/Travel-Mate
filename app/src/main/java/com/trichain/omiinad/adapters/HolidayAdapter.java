@@ -14,17 +14,16 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.card.MaterialCardView;
-import com.trichain.omiinad.activities.HolidayDetailActivity;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.activities.HolidayDetailActivity;
 import com.trichain.omiinad.entities.HolidayTable;
 import com.trichain.omiinad.room.DatabaseClient;
 
 import java.util.List;
 
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static com.trichain.omiinad.utils.Utils.formatDate;
+import static com.trichain.omiinad.utils.Utils.loadPhoto;
 
 public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayViewHolder> {
 
@@ -102,12 +101,16 @@ public class HolidayAdapter extends RecyclerView.Adapter<HolidayAdapter.HolidayV
             protected void onPostExecute(String holidayphotoCount) {
                 super.onPostExecute(holidayphotoCount);
 
-                Glide.with(context)
+                loadPhoto(context,
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount,
+                        imageView);
+
+                /*Glide.with(context)
                         .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
                         .fallback(R.drawable.ic_landscape)
                         .placeholder(R.drawable.ic_landscape)
                         .transition(withCrossFade(500))
-                        .into(imageView);
+                        .into(imageView);*/
             }
         }
 

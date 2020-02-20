@@ -17,10 +17,10 @@
             android:id="@+id/nav_visited"
             android:icon="@drawable/ic_place"
             android:title="Visited Places" />
-        <item
+        <!--<item
             android:id="@+id/nav_search"
             android:icon="@drawable/ic_search_dark"
-            android:title="Search" />
+            android:title="Search" />-->
         <item
             android:id="@+id/nav_gallery"
             android:icon="@drawable/ic_menu_gallery"

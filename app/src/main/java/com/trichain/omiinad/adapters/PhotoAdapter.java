@@ -13,13 +13,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.room.DatabaseClient;
 import com.trichain.omiinad.utils.PhotoFullPopupWindow;
 
 import java.util.List;
+
+import static com.trichain.omiinad.utils.Utils.loadPhoto;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewHolder> {
 
@@ -144,10 +145,13 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.HolidayViewH
             @Override
             public void run() {
                 //change View Data
-                Glide.with(context)
+                loadPhoto(context,
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + a,
+                        view);
+                /*Glide.with(context)
                         .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + a)
                         .fallback(R.drawable.japan)
-                        .into(view);
+                        .into(view);*/
             }
         });
 

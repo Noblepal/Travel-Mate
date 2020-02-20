@@ -57,6 +57,7 @@ import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.MyShakeDetector;
 import com.trichain.omiinad.utils.Utils;
 
 import java.io.File;
@@ -70,11 +71,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import okhttp3.internal.Util;
-import safety.com.br.android_shake_detector.core.ShakeCallback;
-import safety.com.br.android_shake_detector.core.ShakeDetector;
-import safety.com.br.android_shake_detector.core.ShakeOptions;
 
 import static com.trichain.omiinad.utils.Utils.setGoogleMapStyle;
 
@@ -100,7 +96,6 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
     int strtext;
     String people = "";
     String date, time;
-    ShakeDetector shakeDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -110,26 +105,9 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
         place = getIntent().getIntExtra("place", 0);
         people1 = 0;
 
-        //sensors
-        ShakeOptions options = new ShakeOptions()
-                .background(true)
-                .interval(1000)
-                .shakeCount(2)
-                .sensibility(2.0f);
+        /*Shake gesture detectof*/
+        MyShakeDetector.getInstance(this).instantiateShakeDetector();
 
-        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
-            @Override
-            public void onShake() {
-                Log.e("event", "onShake");
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_HOME);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
-                    startActivity(intent);
-                }
-            }
-        });
-        //sesor
         ((View) findViewById(R.id.back_btn2)).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -247,37 +225,39 @@ public class EditEntryActivity extends AppCompatActivity implements OnMapReadyCa
             getPeople();
         }
     }
-public void editDate(View v){
-    new SingleDateAndTimePickerDialog.Builder(EditEntryActivity.this)
-            //.bottomSheet()
-            //.curved()
-            //.minutesStep(15)
-            //.displayHours(false)
-            //.displayMinutes(false)
-            //.todayText("aujourd'hui")
-            .displayListener(new SingleDateAndTimePickerDialog.DisplayListener() {
-                @Override
-                public void onDisplayed(SingleDateAndTimePicker picker) {
-                    //retrieve the SingleDateAndTimePicker
-                }
-            })
 
-            .title("Simple")
-            .listener(new SingleDateAndTimePickerDialog.Listener() {
-                @Override
-                public void onDateSelected(Date date2) {
-                    date= Utils.formatToReadable(date2);
+    public void editDate(View v) {
+        new SingleDateAndTimePickerDialog.Builder(EditEntryActivity.this)
+                //.bottomSheet()
+                //.curved()
+                //.minutesStep(15)
+                //.displayHours(false)
+                //.displayMinutes(false)
+                //.todayText("aujourd'hui")
+                .displayListener(new SingleDateAndTimePickerDialog.DisplayListener() {
+                    @Override
+                    public void onDisplayed(SingleDateAndTimePicker picker) {
+                        //retrieve the SingleDateAndTimePicker
+                    }
+                })
 
-                    ((EditText) findViewById(R.id.id_day)).setText(date);
-                    ((EditText) findViewById(R.id.id_date)).setText(date);
+                .title("Simple")
+                .listener(new SingleDateAndTimePickerDialog.Listener() {
+                    @Override
+                    public void onDateSelected(Date date2) {
+                        date = Utils.formatToReadable(date2);
 
-                }
-            }).display();
-}
+                        ((EditText) findViewById(R.id.id_day)).setText(date);
+                        ((EditText) findViewById(R.id.id_date)).setText(date);
 
-    public void closeMeNow(View view){
+                    }
+                }).display();
+    }
+
+    public void closeMeNow(View view) {
         finish();
     }
+
     public void setGoogleMap(Double latitude2, Double longitude2, String name) {
 
         mMapView.getMapAsync(new OnMapReadyCallback() {
@@ -317,8 +297,8 @@ public void editDate(View v){
                     @Override
                     public void onMapLongClick(LatLng latLng) {
                         googleMap.addMarker(new MarkerOptions().position(latLng).title("Marker Title").snippet("Marker Description"));
-                        longitude=latLng.longitude;
-                        latitude=latLng.latitude;
+                        longitude = latLng.longitude;
+                        latitude = latLng.latitude;
                         CameraPosition cameraPosition = new CameraPosition.Builder().target(latLng).zoom(12).build();
                         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
 
@@ -421,9 +401,9 @@ public void editDate(View v){
     }
 
     public void trySave(View v) {
-        TextView img_add_photo_no,tv_time1, people;
+        TextView img_add_photo_no, tv_time1, people;
 
-        TextInputEditText id_title, id_msg,id_date,id_day;
+        TextInputEditText id_title, id_msg, id_date, id_day;
         img_add_photo_no = findViewById(R.id.img_add_photo_no);
         id_date = findViewById(R.id.id_date);
         id_day = findViewById(R.id.id_day);//
@@ -629,7 +609,7 @@ public void editDate(View v){
                     @RequiresApi(api = Build.VERSION_CODES.M)
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
-                        LocationManager locationManager =  (LocationManager) EditEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
+                        LocationManager locationManager = (LocationManager) EditEntryActivity.this.getSystemService(Context.LOCATION_SERVICE);
                         Criteria criteria = new Criteria();
 
                         if (EditEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && EditEntryActivity.this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -798,6 +778,6 @@ public void editDate(View v){
     @Override
     protected void onStop() {
         super.onStop();
-        shakeDetector.stopShakeDetector(this);
+        MyShakeDetector.getInstance(this).stopShake();
     }
 }

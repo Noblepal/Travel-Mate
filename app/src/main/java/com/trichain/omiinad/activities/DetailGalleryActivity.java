@@ -13,6 +13,7 @@ import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.PhotoAdapter;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.MyShakeDetector;
 
 import java.util.List;
 
@@ -33,6 +34,10 @@ public class DetailGalleryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_gallery);
+
+        /*Shake gesture detector*/
+        MyShakeDetector.getInstance(this).instantiateShakeDetector();
+
         type = getIntent().getStringExtra("type");
         descending = getIntent().getBooleanExtra("descending", true);
         date = getIntent().getStringExtra("date");
@@ -92,9 +97,10 @@ public class DetailGalleryActivity extends AppCompatActivity {
         }
     }
 
-    public void closeMeNow(View view){
+    public void closeMeNow(View view) {
         finish();
     }
+
     class GetPlacePhotos extends AsyncTask<Void, Void, List<PhotoTable>> {
 
         @Override
@@ -160,4 +166,9 @@ public class DetailGalleryActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        MyShakeDetector.getInstance(this).stopShake();
+    }
 }

@@ -33,8 +33,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.esafirm.imagepicker.features.ImagePicker;
 import com.esafirm.imagepicker.model.Image;
 import com.google.android.gms.common.ConnectionResult;
@@ -59,6 +57,7 @@ import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.MyShakeDetector;
 import com.trichain.omiinad.utils.SendFile;
 import com.trichain.omiinad.utils.Utils;
 
@@ -72,10 +71,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import safety.com.br.android_shake_detector.core.ShakeCallback;
-import safety.com.br.android_shake_detector.core.ShakeDetector;
-import safety.com.br.android_shake_detector.core.ShakeOptions;
 
 import static com.trichain.omiinad.utils.Utils.setGoogleMapStyle;
 
@@ -103,7 +98,7 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     private String people = "";
     private FrameLayout mainLayout;
     private RelativeLayout secondLayout;
-    private ShakeDetector shakeDetector;
+    private TextView tvViewEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,26 +109,9 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
 
         mainLayout = findViewById(R.id.rootLayoutFrame);
         secondLayout = findViewById(R.id.rl2_custom_layout);
+        tvViewEvent = findViewById(R.id.tvViewEvent);
 
-        //Shake listener
-        ShakeOptions options = new ShakeOptions()
-                .background(true)
-                .interval(1000)
-                .shakeCount(2)
-                .sensibility(2.0f);
-
-        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
-            @Override
-            public void onShake() {
-                Log.e("event", "onShake");
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_HOME);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me", true)) {
-                    startActivity(intent);
-                }
-            }
-        });
+        MyShakeDetector.getInstance(this).instantiateShakeDetector();
 
         /*Load images from external storage*/
         getImages();
@@ -204,9 +182,10 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         });
     }
 
-    public void closeMeNow(View view){
+    public void closeMeNow(View view) {
         finish();
     }
+
     private void getPeople() {
         class GetPeople extends AsyncTask<Void, Void, List<PeopleTable>> {
 
@@ -263,32 +242,26 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
             protected void onPostExecute(VisitedPlaceTable visitedPlaceTables) {
                 super.onPostExecute(visitedPlaceTables);
                 holiday = visitedPlaceTables.getHolidayID();
-                ViewPlaceActivity.this.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            ((TextView) findViewById(R.id.id_date)).setText(Utils.getDateNumberOnly(visitedPlaceTables.getVisitDate()));
-                            ((TextView) findViewById(R.id.id_day)).setText(Utils.formatDate(visitedPlaceTables.getVisitDate()));
-                            Log.e(TAG, "run: "+getDateOnly(Utils.getTimeNumberOnly(visitedPlaceTables.getVisitDate())));
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                            Log.e(TAG, "run: "+e );
-                        }
-                        ((TextView) findViewById(R.id.place_name)).setText(visitedPlaceTables.getName());
-                        ((View) findViewById(R.id.hide_me)).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent intent = new Intent(ViewPlaceActivity.this, EditEntryActivity.class);
-                                intent.putExtra("place", place);
-                                intent.putExtra("holiday", holiday);
-                                startActivity(intent);
-                            }
-                        });
-                        ((TextView) findViewById(R.id.tv_time1)).setText(Utils.getTimeNumberOnly(visitedPlaceTables.getVisitDate()));
-                        ((TextView) findViewById(R.id.til_entry_title)).setText(visitedPlaceTables.getText());
-                        setGoogleMap(visitedPlaceTables.getLatitude(), visitedPlaceTables.getLongitude(), visitedPlaceTables.getName());
-                    }
+
+                try {
+                    ((TextView) findViewById(R.id.id_date)).setText(Utils.getDateNumberOnly(visitedPlaceTables.getVisitDate()));
+                    ((TextView) findViewById(R.id.id_day)).setText(Utils.formatDate(visitedPlaceTables.getVisitDate()));
+                    Log.e(TAG, "run: " + getDateOnly(Utils.getTimeNumberOnly(visitedPlaceTables.getVisitDate())));
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                    Log.e(TAG, "run: " + e);
+                }
+                ((TextView) findViewById(R.id.place_name)).setText(visitedPlaceTables.getName());
+                tvViewEvent.setText(visitedPlaceTables.getName());
+                findViewById(R.id.btnEditEntry).setOnClickListener(v -> {
+                    Intent intent = new Intent(ViewPlaceActivity.this, EditEntryActivity.class);
+                    intent.putExtra("place", place);
+                    intent.putExtra("holiday", holiday);
+                    startActivity(intent);
                 });
+                ((TextView) findViewById(R.id.tv_time1)).setText(Utils.getTimeNumberOnly(visitedPlaceTables.getVisitDate()));
+                ((TextView) findViewById(R.id.til_entry_title)).setText(visitedPlaceTables.getText());
+                setGoogleMap(visitedPlaceTables.getLatitude(), visitedPlaceTables.getLongitude(), visitedPlaceTables.getName());
 
             }
         }
@@ -364,18 +337,21 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
         public void setImageForPosition(int position, ImageView imageView) {
             // imageView.setImageResource(sampleImages[position]);
             String filename = photoTables2.get(position).getPhotoName();
-            Glide.with(ViewPlaceActivity.this)
+            Utils.loadPhoto(ViewPlaceActivity.this,
+                    Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename,
+                    imageView);
+           /* Glide.with(ViewPlaceActivity.this)
                     .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
                     .fallback(R.drawable.landscape)
                     .placeholder(R.drawable.landscape)
                     .transition(DrawableTransitionOptions.withCrossFade(500))
-                    .into(imageView);
-            imageView.setOnClickListener(new View.OnClickListener() {
+                    .into(imageView);*/
+          /*  imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     //showCarouselInFullScreen(v);
                 }
-            });
+            });*/
         }
     };
 
@@ -777,6 +753,6 @@ public class ViewPlaceActivity extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onStop() {
         super.onStop();
-        shakeDetector.stopShakeDetector(this);
+        MyShakeDetector.getInstance(this).stopShake();
     }
 }

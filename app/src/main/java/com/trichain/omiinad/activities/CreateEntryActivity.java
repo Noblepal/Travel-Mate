@@ -62,23 +62,19 @@ import com.trichain.omiinad.entities.PeopleTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.MyShakeDetector;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import safety.com.br.android_shake_detector.core.ShakeCallback;
-import safety.com.br.android_shake_detector.core.ShakeDetector;
-import safety.com.br.android_shake_detector.core.ShakeOptions;
 
 import static com.trichain.omiinad.utils.Utils.setGoogleMapStyle;
 
@@ -105,10 +101,9 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
     private AppCompatEditText personNames;
     private int SpannedLength = 0, chipLength = 4;
     String[] ts;
-    boolean isLocationFound=false;
+    boolean isLocationFound = false;
     FusedLocationProviderClient mFusedLocationClient;
 
-    ShakeDetector shakeDetector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,26 +111,9 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         checkLocationPermission();
 
-        //sensors
-        ShakeOptions options = new ShakeOptions()
-                .background(true)
-                .interval(1000)
-                .shakeCount(2)
-                .sensibility(2.0f);
+        /*Shake gesture detector*/
+        MyShakeDetector.getInstance(this).instantiateShakeDetector();
 
-        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
-            @Override
-            public void onShake() {
-                Log.e("event", "onShake");
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_HOME);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
-                    startActivity(intent);
-                }
-            }
-        });
-        //sesor
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             holiday = getIntent().getIntExtra("holiday", 0);
@@ -288,7 +266,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                 // googleMap.setMyLocationEnabled(true);
 
                 // For dropping a marker at a point on the Map
-                if (latitude!=null){
+                if (latitude != null) {
 
                     LatLng sydney = new LatLng(latitude, longitude);
                     googleMap.addMarker(new MarkerOptions().position(sydney).title("Current").snippet("Location"));
@@ -317,7 +295,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                 googleMap.setOnMapLongClickListener(new GoogleMap.OnMapLongClickListener() {
                     @Override
                     public void onMapLongClick(LatLng latLng) {
-                        Log.e(TAG, "onMapLongClick: " );
+                        Log.e(TAG, "onMapLongClick: ");
                         googleMap.addMarker(new MarkerOptions().position(latLng).title("Selected").snippet("Location"));
 
                         // For zooming automatically to the location of the marker
@@ -331,9 +309,11 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         });
 
     }
-    public void closeMeNow(View view){
+
+    public void closeMeNow(View view) {
         finish();
     }
+
     private void requestNewLocationData() {
         LocationRequest mLocationRequest = new LocationRequest();
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
@@ -371,10 +351,10 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         } else if (holiday == 0) {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show();
 
-        } else if (longitude==null){
+        } else if (longitude == null) {
 
             Toast.makeText(this, "Locations not set", Toast.LENGTH_SHORT).show();
-        }else if (people1 == 0) {
+        } else if (people1 == 0) {
             peopleErrorMessage.setVisibility(View.VISIBLE);
             Toast.makeText(this, "Select Number of people", Toast.LENGTH_SHORT).show();
 
@@ -635,22 +615,22 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                         MY_PERMISSIONS_REQUEST_LOCATION);
             }
-        }else {
+        } else {
             mFusedLocationClient.getLastLocation().addOnCompleteListener(
                     task -> {
-                        Log.e(TAG, "showAcquiringLocationDialog: Task starting" );
+                        Log.e(TAG, "showAcquiringLocationDialog: Task starting");
                         Location location = task.getResult();
                         if (location == null) {
                             requestNewLocationData();
                             isLocationFound = false;
-                            Log.e(TAG, "showAcquiringLocationDialog: Task false" );
+                            Log.e(TAG, "showAcquiringLocationDialog: Task false");
                         } else {
-                            latitude=location.getLatitude();
-                            longitude=location.getLongitude();
-                            Log.e(TAG, "showAcquiringLocationDialog: Task true" );
+                            latitude = location.getLatitude();
+                            longitude = location.getLongitude();
+                            Log.e(TAG, "showAcquiringLocationDialog: Task true");
                         }
 
-                        Log.e(TAG, "showAcquiringLocationDialog: Task end" );
+                        Log.e(TAG, "showAcquiringLocationDialog: Task end");
                     }
             );
         }
@@ -660,7 +640,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
         super.onRequestPermissionsResult(requestCode,
-        permissions,  grantResults);
+                permissions, grantResults);
 
         Log.d(TAG, "Granted. Start getting the location information 1");
         switch (requestCode) {
@@ -672,14 +652,14 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
                     // permission was granted, yay! Do the
                     // location-related task you need to do.
 
-                    Intent intent= new Intent(CreateEntryActivity.this,CreateEntryActivity.class);
-                    intent.putExtra("holiday",holiday);
-                    intent.putExtra("place",place);
+                    Intent intent = new Intent(CreateEntryActivity.this, CreateEntryActivity.class);
+                    intent.putExtra("holiday", holiday);
+                    intent.putExtra("place", place);
                     startActivity(intent);
                     finish();
 
                 } else {
-                        finish();
+                    finish();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
                     Toast.makeText(CreateEntryActivity.this, "permission denied", Toast.LENGTH_LONG).show();
@@ -763,6 +743,7 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
         chip.setOnCloseIconClickListener(v -> entryChipGroup.removeView(chip));
         return chip;
     }
+
     private LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -775,6 +756,6 @@ public class CreateEntryActivity extends AppCompatActivity implements OnMapReady
     @Override
     protected void onStop() {
         super.onStop();
-        shakeDetector.stopShakeDetector(this);
+        MyShakeDetector.getInstance(this).stopShake();
     }
 }

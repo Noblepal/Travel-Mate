@@ -20,10 +20,7 @@ import com.trichain.omiinad.R;
 import com.trichain.omiinad.room.CalendarListener;
 import com.trichain.omiinad.room.OnViewSelected;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -48,22 +45,6 @@ public class DateFragment extends Fragment {
         root= inflater.inflate(R.layout.fragment_date, container, false);
         Calendar current = Calendar.getInstance();
         calendar = root.findViewById(R.id.calendar);
-
-        final Calendar startMonth = Calendar.getInstance();
-        startMonth.add(Calendar.MONTH, -2);
-        final Calendar endMonth = (Calendar) startMonth.clone();
-        endMonth.add(Calendar.MONTH, 5);
-        Log.d(TAG, "Start month: " + startMonth.getTime().toString() + " :: End month: " + endMonth.getTime().toString());
-
-        calendar.setVisibleMonthRange(startMonth, endMonth);
-
-        final Calendar startDateSelectable = (Calendar) startMonth.clone();
-        startDateSelectable.add(Calendar.DATE,20);
-        final Calendar endDateSelectable = (Calendar) endMonth.clone();
-        endDateSelectable.add(Calendar.DATE, -20);
-        Log.d(TAG, "startDateSelectable: " + startDateSelectable.getTime().toString() + " :: endDateSelectable: " + endDateSelectable.getTime().toString());
-        calendar.setSelectableDateRange(startDateSelectable, endDateSelectable);
-//        calendar.se
         calendar.setCalendarListener(new DateRangeCalendarView.CalendarListener() {
             @Override
             public void onFirstDateSelected(Calendar startDate) {

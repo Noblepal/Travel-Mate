@@ -15,9 +15,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.trichain.omiinad.activities.DetailGalleryActivity;
 import com.trichain.omiinad.R;
+import com.trichain.omiinad.activities.DetailGalleryActivity;
 import com.trichain.omiinad.entities.HolidayTable;
 import com.trichain.omiinad.entities.PhotoTable;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
@@ -26,13 +25,15 @@ import com.trichain.omiinad.room.DatabaseClient;
 import java.io.Serializable;
 import java.util.List;
 
+import static com.trichain.omiinad.utils.Utils.loadPhoto;
+
 public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAdapter.HolidayViewHolder> {
 
     List<PhotoTable> photoTables;
     Context context;
-    boolean isImageFitToScreen,isDate,isHoliday,isPlace,descending;
-    String type="";
-    String TAG="PhotoPlaceListAdapter";
+    boolean isImageFitToScreen, isDate, isHoliday, isPlace, descending;
+    String type = "";
+    String TAG = "PhotoPlaceListAdapter";
     RecyclerView mRecyclerView;
     private final View.OnClickListener mOnClickListener = new MyOnClickListener();
 
@@ -42,16 +43,16 @@ public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAd
         this.isDate = isDate;
         this.isHoliday = isHoliday;
         this.isPlace = isPlace;
-        this.mRecyclerView=recyclerView;
+        this.mRecyclerView = recyclerView;
         this.descending = descending;
-        if (isDate){
-            this.type="date";
-        }else if (isHoliday){
-            this.type="holiday";
-        }else if (isPlace){
-            this.type="place";
-        }else {
-            this.type="place";
+        if (isDate) {
+            this.type = "date";
+        } else if (isHoliday) {
+            this.type = "holiday";
+        } else if (isPlace) {
+            this.type = "place";
+        } else {
+            this.type = "place";
 
         }
 
@@ -64,7 +65,7 @@ public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAd
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e(TAG, "onClick: 222" );
+                Log.e(TAG, "onClick: 222");
             }
         });
         return new HolidayViewHolder(v);
@@ -74,22 +75,21 @@ public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAd
     public void onBindViewHolder(@NonNull HolidayViewHolder holder, int position) {
 
         final PhotoTable h = photoTables.get(position);
-        String name="";
+        String name = "";
         getOnePhotos(h.getPhotoName(), context, holder.imageView);
-        if (type.contentEquals("date")){
+        if (type.contentEquals("date")) {
             holder.photoName.setText(h.getPhotoDate());
-        }else if (type.contentEquals("holiday")){
-            getHolName(h.getHolidayID(),context,holder.photoName);
+        } else if (type.contentEquals("holiday")) {
+            getHolName(h.getHolidayID(), context, holder.photoName);
 
-        }else if (type.contentEquals("place")){
-            getVisName(h.getPlaceID(),context,holder.photoName);
+        } else if (type.contentEquals("place")) {
+            getVisName(h.getPlaceID(), context, holder.photoName);
         }
-        Log.e(TAG, "onBindViewHolder: "+type );
+        Log.e(TAG, "onBindViewHolder: " + type);
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
 
 
             }
@@ -145,6 +145,7 @@ public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAd
         SaveTask st = new SaveTask();
         st.execute();
     }
+
     private void getVisName(final int a, final Context context, final TextView view) {
         class SaveTask extends AsyncTask<Void, Void, VisitedPlaceTable> {
 
@@ -216,10 +217,15 @@ public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAd
             @Override
             public void run() {
                 //change View Data
+
+                loadPhoto(context,
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + a,
+                        view);
+                /*
                 Glide.with(context)
                         .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + a)
                         .fallback(R.drawable.japan)
-                        .into(view);
+                        .into(view);*/
             }
         });
 
@@ -230,14 +236,14 @@ public class PhotoGroupListAdapter extends RecyclerView.Adapter<PhotoGroupListAd
         public void onClick(View v) {
             int position = mRecyclerView.getChildLayoutPosition(v);
             final PhotoTable h = photoTables.get(position);
-            Log.e(TAG, "onClick: "+type+descending+h.getHolidayID() );
-            Intent intent= new Intent(context, DetailGalleryActivity.class);
-            intent.putExtra("type",type);
-            intent.putExtra("descending",descending);
-            intent.putExtra("date",h.getId());
-            intent.putExtra("holiday",h.getHolidayID());
-            intent.putExtra("place",h.getPlaceID());
-            intent.putExtra("id",h.getId());
+            Log.e(TAG, "onClick: " + type + descending + h.getHolidayID());
+            Intent intent = new Intent(context, DetailGalleryActivity.class);
+            intent.putExtra("type", type);
+            intent.putExtra("descending", descending);
+            intent.putExtra("date", h.getId());
+            intent.putExtra("holiday", h.getHolidayID());
+            intent.putExtra("place", h.getPlaceID());
+            intent.putExtra("id", h.getId());
             intent.putExtra("data", (Serializable) photoTables);
             context.startActivity(intent);
         }

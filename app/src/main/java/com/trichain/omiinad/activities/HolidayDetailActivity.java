@@ -1,5 +1,6 @@
 package com.trichain.omiinad.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -10,26 +11,24 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.adapters.EventAdapter;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
 import com.trichain.omiinad.room.DatabaseClient;
+import com.trichain.omiinad.utils.MyShakeDetector;
 
 import java.util.List;
 
-import safety.com.br.android_shake_detector.core.ShakeCallback;
-import safety.com.br.android_shake_detector.core.ShakeDetector;
-import safety.com.br.android_shake_detector.core.ShakeOptions;
+import static com.trichain.omiinad.utils.Utils.loadPhoto;
 
 public class HolidayDetailActivity extends AppCompatActivity {
 
@@ -38,8 +37,8 @@ public class HolidayDetailActivity extends AppCompatActivity {
     private static String TAG = "HolidayDetailActivity";
     private RelativeLayout rlNoPlaces;
     private ImageView imgNoPlaces;
+    private TextView tvTitle;
 
-    ShakeDetector shakeDetector;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,46 +48,20 @@ public class HolidayDetailActivity extends AppCompatActivity {
         holidayid = getIntent().getIntExtra("holiday", 0);
         Log.e(TAG, "onCreate: " + holidayid);
 
-        //sensors
-        ShakeOptions options = new ShakeOptions()
-                .background(true)
-                .interval(1000)
-                .shakeCount(2)
-                .sensibility(2.0f);
+        MyShakeDetector.getInstance(this).instantiateShakeDetector();
 
-        this.shakeDetector = new ShakeDetector(options).start(this, new ShakeCallback() {
-            @Override
-            public void onShake() {
-                Log.e("event", "onShake");
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_HOME);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                if (getSharedPreferences("MyPref", MODE_PRIVATE).getBoolean("shake_me",true)){
-                    startActivity(intent);
-                }
-            }
-        });
-        //sesor
         rlNoPlaces = findViewById(R.id.rlNoPlaces);
         imgNoPlaces = findViewById(R.id.imgNoPlaces);
         setImage(holidayid);
-
+        getHolidayName(holidayid);
+        tvTitle = findViewById(R.id.tvHolidayTitle);
         getPlaces(holidayid);
 
-        final FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Add Visited Place?", Snackbar.LENGTH_LONG)
-                        .setAction("Yes", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Intent bundle = new Intent(HolidayDetailActivity.this, CreateEntryActivity.class);
-                                bundle.putExtra("holiday", holidayid);
-                                startActivity(bundle);
-                            }
-                        }).show();
-            }
+        final FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(view -> {
+            Intent bundle = new Intent(HolidayDetailActivity.this, CreateEntryActivity.class);
+            bundle.putExtra("holiday", holidayid);
+            startActivity(bundle);
         });
 
 
@@ -113,9 +86,30 @@ public class HolidayDetailActivity extends AppCompatActivity {
         });
     }
 
-    public void closeMeNow(View view){
+    @SuppressLint("StaticFieldLeak")
+    private void getHolidayName(int holidayId) {
+        new AsyncTask<Integer, Void, String>() {
+            @Override
+            protected String doInBackground(Integer... ints) {
+                return DatabaseClient.getInstance(HolidayDetailActivity.this)
+                        .getAppDatabase()
+                        .holidayDao()
+                        .getHolidayName(ints[0])
+                        .getName();
+            }
+
+            @Override
+            protected void onPostExecute(String s) {
+                super.onPostExecute(s);
+                tvTitle.setText(s);
+            }
+        }.execute(holidayId);
+    }
+
+    public void closeMeNow(View view) {
         finish();
     }
+
     private void setImage(final int holidayid) {
         class GetHolidays extends AsyncTask<Void, Void, String> {
 
@@ -135,11 +129,14 @@ public class HolidayDetailActivity extends AppCompatActivity {
             protected void onPostExecute(String holidayphotoCount) {
                 super.onPostExecute(holidayphotoCount);
                 ImageView view = findViewById(R.id.expandedImage);
-                Glide.with(HolidayDetailActivity.this)
+                loadPhoto(HolidayDetailActivity.this,
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount,
+                        view);
+                /*Glide.with(HolidayDetailActivity.this)
                         .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
                         .fallback(R.drawable.ic_landscape)
                         .placeholder(R.drawable.ic_landscape)
-                        .into(view);
+                        .into(view);*/
             }
         }
 
@@ -234,7 +231,7 @@ public class HolidayDetailActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        shakeDetector.stopShakeDetector(this);
+        MyShakeDetector.getInstance(this).stopShake();
     }
 
 }

@@ -3,7 +3,13 @@ package com.trichain.omiinad.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.Log;
+import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.trichain.omiinad.R;
@@ -53,19 +59,21 @@ public class Utils {
         }
         return reformattedStr;
     }
+
     public static String formatToReadable(Date date) {
 
         String reformattedStr = "";
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-d hh:mm:ss");
-        String strDate= formatter.format(date);
+        String strDate = formatter.format(date);
         System.out.println(strDate);
-        Log.e(TAG, "formatToReadable: "+strDate );
+        Log.e(TAG, "formatToReadable: " + strDate);
 
         reformattedStr = strDate;
 
 
         return reformattedStr;
     }
+
     //2020-02-14 19:42:14
     public static String getDateNumberOnly(String d) {
         String[] x = d.split(" ");
@@ -104,6 +112,7 @@ public class Utils {
         }
         return reformattedStr;
     }
+
     private static String extractDate(String a) {
         try {
             String[] newDate = a.split(" ");
@@ -324,5 +333,15 @@ public class Utils {
 
         return (bitmap);
 
+    }
+
+    public static void loadPhoto(@NonNull Context context, String imageUrl, ImageView target) {
+        Glide.with(context)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholder)
+                .fallback(R.drawable.placeholder)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .transition(DrawableTransitionOptions.withCrossFade(500))
+                .into(target);
     }
 }

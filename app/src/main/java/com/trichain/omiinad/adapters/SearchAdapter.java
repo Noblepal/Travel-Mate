@@ -14,7 +14,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.activities.ViewPlaceActivity;
 import com.trichain.omiinad.entities.VisitedPlaceTable;
@@ -22,7 +21,7 @@ import com.trichain.omiinad.room.DatabaseClient;
 
 import java.util.List;
 
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static com.trichain.omiinad.utils.Utils.loadPhoto;
 
 public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayViewHolder> {
 
@@ -177,12 +176,17 @@ public class SearchAdapter extends RecyclerView.Adapter<SearchAdapter.HolidayVie
                     @Override
                     public void run() {
                         //change View Data
+
+                        loadPhoto(context,
+                                Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount,
+                                view);
+                        /*
                         Glide.with(context)
                                 .load(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + holidayphotoCount)
                                 .fallback(R.drawable.japan)
                                 .placeholder(R.drawable.ic_landscape)
                                 .transition(withCrossFade(500))
-                                .into(view);
+                                .into(view);*/
                     }
                 });
                 return null;

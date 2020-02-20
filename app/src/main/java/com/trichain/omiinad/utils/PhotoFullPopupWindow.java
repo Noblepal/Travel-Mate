@@ -21,7 +21,6 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.synnapps.carouselview.CarouselView;
@@ -29,7 +28,6 @@ import com.synnapps.carouselview.ImageListener;
 import com.trichain.omiinad.R;
 import com.trichain.omiinad.entities.PhotoTable;
 
-import java.io.File;
 import java.util.List;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
@@ -76,12 +74,16 @@ public class PhotoFullPopupWindow extends PopupWindow {
             public void setImageForPosition(int position, ImageView imageView) {
                 // imageView.setImageResource(sampleImages[position]);
                 String filename = photoTable.get(position).getPhotoName();
-                Glide.with(ctx)
+
+                Utils.loadPhoto(mContext,
+                        Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename,
+                        imageView);
+                /*Glide.with(ctx)
                         .load(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/holidayImages/" + filename))
                         .fallback(R.drawable.landscape)
                         .placeholder(R.drawable.landscape)
                         .transition(DrawableTransitionOptions.withCrossFade(500))
-                        .into(imageView);
+                        .into(imageView);*/
             }
         };
 
